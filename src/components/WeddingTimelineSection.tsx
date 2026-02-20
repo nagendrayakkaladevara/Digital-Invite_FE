@@ -1,5 +1,3 @@
-"use client";
-
 import { Timeline } from "@/components/ui/timeline";
 
 const weddingEvents = [
