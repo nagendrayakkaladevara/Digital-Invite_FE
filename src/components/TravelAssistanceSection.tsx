@@ -10,6 +10,7 @@ import {
   Phone,
   ChevronDown,
   ChevronRight,
+  RotateCcw,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -24,7 +25,9 @@ const CITIES = [
 const EVENTS = [
   { id: "pellikoduku", label: "Pellikoduku Cheytam" },
   { id: "march7-lunch", label: "March 7th Lunch" },
-  { id: "pelli", label: "Pelli" },
+  { id: "pelli", label: "Pelli March 8th 02:35 AM" },
+  { id: "sathanamuthi", label: "Sathanamuthi Ratham" },
+  { id: "yarnalu-lunch", label: "Yarnalu Lunch" },
 ] as const;
 
 const VENUE_MAPS_URL = "https://maps.google.com"; // Replace with actual venue link
@@ -77,8 +80,16 @@ export default function TravelAssistanceSection() {
   const [expandedTransport, setExpandedTransport] =
     useState<TransportKey | null>(null);
 
-  const showTransport =
-    selectedCity !== null && selectedEvent !== null;
+  const showTransport = selectedCity !== null && selectedEvent !== null;
+  const hasSelection = selectedEvent !== null || selectedCity !== null;
+  const selectedEventLabel =
+    EVENTS.find((e) => e.id === selectedEvent)?.label ?? selectedEvent;
+
+  const handleClear = () => {
+    setSelectedEvent(null);
+    setSelectedCity(null);
+    setExpandedTransport(null);
+  };
 
   return (
     <section
@@ -108,102 +119,125 @@ export default function TravelAssistanceSection() {
           viewport={{ once: true, margin: "-50px" }}
           transition={{ duration: 0.5, ease: [0.25, 0.46, 0.45, 0.94] }}
         >
-          <h2 className="text-2xl md:text-4xl font-bold font-josefin text-neutral-800 mb-4">
+          <h2 className="text-2xl md:text-4xl font-bold font-josefin text-neutral-800 mb-5">
             🧭 Travel Assistance
           </h2>
-          <p className="text-neutral-600 text-base md:text-lg max-w-2xl mx-auto leading-relaxed">
-            We're truly delighted to have you join us on our special day. To make
-            your journey smooth and stress-free, we've put together simple
-            travel guidance based on{" "}
-            <strong>the city you are coming from</strong>.
+          <p className="text-neutral-600 text-lg md:text-xl max-w-xl mx-auto leading-relaxed font-josefin tracking-tight">
+            So glad you're joining us.
           </p>
-          <p className="text-neutral-500 text-sm md:text-base mt-3 max-w-xl mx-auto">
-            Just select your city and event below, and we'll show you the{" "}
-            <strong>best available travel options</strong> along with clear next
-            steps.
+          <p className="text-neutral-500 text-sm md:text-base max-w-lg mx-auto mt-4 leading-relaxed">
+            Tell us which event you're attending and where you're coming from —
+            we'll show you the best way to reach the venue.
           </p>
         </motion.header>
 
-        {/* Event Selection */}
-        <motion.div
-          className="mb-10"
-          initial={{ opacity: 0, y: 12 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-30px" }}
-          transition={{ duration: 0.45, ease: [0.25, 0.46, 0.45, 0.94], delay: 0.1 }}
-        >
-          <h3 className="text-sm font-semibold uppercase tracking-widest text-amber-800/80 mb-3">
-            Which event will you attend?
-          </h3>
-          <div className="flex flex-wrap gap-2">
-            {EVENTS.map((event) => (
-              <button
-                key={event.id}
-                type="button"
-                onClick={() =>
-                  setSelectedEvent(selectedEvent === event.id ? null : event.id)
-                }
-                className={cn(
-                  "px-4 py-2.5 rounded-xl text-sm font-medium transition-all duration-200",
-                  "border-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400/50 focus-visible:ring-offset-2",
-                  selectedEvent === event.id
-                    ? "bg-amber-600/15 border-amber-600/60 text-amber-900 shadow-[0_2px_12px_rgba(180,83,9,0.12)]"
-                    : "bg-white/80 border-neutral-200/80 text-neutral-600 hover:border-amber-400/40 hover:text-neutral-800"
-                )}
-              >
-                {event.label}
-              </button>
-            ))}
-          </div>
-        </motion.div>
-
-        {/* City Selection */}
-        <motion.div
-          className="mb-12"
-          initial={{ opacity: 0, y: 12 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-30px" }}
-          transition={{ duration: 0.45, ease: [0.25, 0.46, 0.45, 0.94], delay: 0.15 }}
-        >
-          <h3 className="text-base md:text-lg font-semibold font-josefin text-neutral-800 mb-2">
-            🌍 Select Your City
-          </h3>
-          <p className="text-neutral-500 text-sm mb-4">
-            From which city are you coming? Choose your city to see the most
-            convenient ways to reach the wedding venue.
-          </p>
-          <div className="flex flex-wrap gap-2">
-            {CITIES.map((city) => (
-              <button
-                key={city}
-                type="button"
-                onClick={() =>
-                  setSelectedCity(selectedCity === city ? null : city)
-                }
-                className={cn(
-                  "px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200",
-                  "border-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400/50 focus-visible:ring-offset-2",
-                  selectedCity === city
-                    ? "bg-amber-600/15 border-amber-600/60 text-amber-900 shadow-[0_2px_12px_rgba(180,83,9,0.12)]"
-                    : "bg-white/80 border-neutral-200/80 text-neutral-600 hover:border-amber-400/40 hover:text-neutral-800"
-                )}
-              >
-                {city}
-              </button>
-            ))}
-          </div>
-        </motion.div>
-
-        {/* Transport Options - reveal when city & event selected */}
-        <AnimatePresence>
-          {showTransport && (
-            <motion.div
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: "auto" }}
-              exit={{ opacity: 0, height: 0 }}
-              transition={{ duration: 0.4, ease: [0.25, 0.46, 0.45, 0.94] }}
-              className="overflow-hidden"
+        {hasSelection && (
+          <motion.div
+            initial={{ opacity: 0, y: -8 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mb-6 flex flex-col-reverse sm:flex-row sm:items-center sm:justify-between gap-3"
+          >
+            <p className="text-sm text-neutral-600 font-medium sm:order-1" aria-label="Your selection">
+              <span className="text-amber-700/90">{selectedEventLabel}</span>
+              {selectedCity && (
+                <>
+                  <span className="mx-2 text-neutral-400" aria-hidden>•</span>
+                  <span className="text-neutral-700">{selectedCity}</span>
+                </>
+              )}
+            </p>
+            <button
+              type="button"
+              onClick={handleClear}
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium text-neutral-600 hover:text-neutral-800 hover:bg-white/80 border border-neutral-200/80 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400/50 focus-visible:ring-offset-2"
             >
+              <RotateCcw className="h-4 w-4" aria-hidden />
+              Clear & start over
+            </button>
+          </motion.div>
+        )}
+
+        {/* Steps: Event → City → Transport (one at a time with transition) */}
+        <div className="min-h-[180px]">
+          <AnimatePresence mode="wait">
+            {!selectedEvent && (
+              <motion.div
+                key="event"
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -12 }}
+                transition={{ duration: 0.35, ease: [0.25, 0.46, 0.45, 0.94] }}
+                className="mb-10"
+              >
+                <h3 className="text-sm font-semibold uppercase tracking-widest text-amber-800/80 mb-3">
+                  Which event will you attend?
+                </h3>
+                <div className="flex flex-wrap gap-2">
+                  {EVENTS.map((event) => (
+                    <button
+                      key={event.id}
+                      type="button"
+                      onClick={() => setSelectedEvent(event.id)}
+                      className={cn(
+                        "px-4 py-2.5 rounded-xl text-sm font-medium transition-all duration-200",
+                        "border-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400/50 focus-visible:ring-offset-2",
+                        "bg-white/80 border-neutral-200/80 text-neutral-600 hover:border-amber-400/40 hover:text-neutral-800"
+                      )}
+                    >
+                      {event.label}
+                    </button>
+                  ))}
+                </div>
+              </motion.div>
+            )}
+
+            {selectedEvent && !selectedCity && (
+              <motion.div
+                key="city"
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -12 }}
+                transition={{ duration: 0.35, ease: [0.25, 0.46, 0.45, 0.94] }}
+                className="mb-12"
+              >
+              <h3 className="text-base md:text-lg font-semibold font-josefin text-neutral-800 mb-2">
+                From which city are you coming?
+              </h3>
+              <p className="text-neutral-500 text-sm mb-4">
+                Choose your city to see the most convenient ways to reach the
+                wedding venue.
+              </p>
+              <div className="flex flex-wrap gap-2">
+                {CITIES.map((city) => (
+                  <button
+                    key={city}
+                    type="button"
+                    onClick={() =>
+                      setSelectedCity(selectedCity === city ? null : city)
+                    }
+                    className={cn(
+                      "px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200",
+                      "border-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400/50 focus-visible:ring-offset-2",
+                      selectedCity === city
+                        ? "bg-amber-600/15 border-amber-600/60 text-amber-900 shadow-[0_2px_12px_rgba(180,83,9,0.12)]"
+                        : "bg-white/80 border-neutral-200/80 text-neutral-600 hover:border-amber-400/40 hover:text-neutral-800"
+                    )}
+                  >
+                    {city}
+                  </button>
+                ))}
+              </div>
+            </motion.div>
+            )}
+
+            {showTransport && (
+              <motion.div
+                key="transport"
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -12 }}
+                transition={{ duration: 0.35, ease: [0.25, 0.46, 0.45, 0.94] }}
+              >
               <h3 className="text-base md:text-lg font-semibold font-josefin text-neutral-800 mb-4">
                 ✈️🚆🚌 Available Transport Options
               </h3>
@@ -295,9 +329,10 @@ export default function TravelAssistanceSection() {
                   }
                 )}
               </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
 
         {/* Venue Location */}
         <motion.div
