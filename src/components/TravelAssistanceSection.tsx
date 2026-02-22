@@ -37,7 +37,12 @@ const EVENTS = [
   { id: "yarnalu-lunch", label: "Yarnalu Lunch March 9th" },
 ] as const;
 
-const TRAVEL_CONTACT = "+91 8099712349";
+const TRAVEL_CONTACTS = [
+  { name: "Prabhu", relation: "Nagendra's Father", phone: "+91 8099712349" },
+  { name: "Prasad", relation: "Nagendra's Babaya", phone: "+91 9014315333" },
+  { name: "Suresh", relation: "Nagendra's Babaya", phone: "+91 7013297510" },
+  { name: "Kasi Pavan", relation: "Brother", phone: "+91 9492533304" },
+];
 
 // Venue coordinates per event (different events may be at different venues)
 // Pelli March 8th only is in Eluru (Akkireddigudem); all other events are in Mamidikuduru
@@ -659,34 +664,52 @@ export default function TravelAssistanceSection() {
           {/* Decorative accent */}
           <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-amber-300 via-orange-300 to-amber-200" />
 
-          <div className="p-6 md:p-8 flex flex-col sm:flex-row sm:items-center gap-5 sm:gap-6">
-            {/* Icon */}
-            <div className="shrink-0">
-              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-amber-100 to-orange-100 shadow-sm ring-1 ring-amber-200/50">
-                <Phone className="h-5 w-5 text-amber-700" aria-hidden />
+          <div className="p-6 md:p-8">
+            {/* Header */}
+            <div className="flex items-center gap-3 mb-2">
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-amber-100 to-orange-100 shadow-sm ring-1 ring-amber-200/50">
+                <Phone className="h-[18px] w-[18px] text-amber-700" aria-hidden />
               </div>
-            </div>
-
-            {/* Content */}
-            <div className="flex-1 min-w-0">
-              <h3 className="text-lg md:text-xl font-semibold font-josefin text-neutral-800 mb-1">
+              <h3 className="text-lg md:text-xl font-semibold font-josefin text-neutral-800">
                 Need Help?
               </h3>
-              <p className="text-neutral-500 text-sm leading-relaxed">
-                Don't worry — help is just a call away. We'll be happy to guide
-                you or arrange assistance.
-              </p>
             </div>
+            <p className="text-neutral-500 text-sm leading-relaxed mb-5 ml-[52px]">
+              Don't worry — help is just a call away.
+            </p>
 
-            {/* CTA */}
-            <div className="shrink-0">
-              <a
-                href={`tel:${TRAVEL_CONTACT.replace(/\s/g, "")}`}
-                className="inline-flex items-center gap-2.5 px-5 py-3 rounded-xl bg-amber-600 text-white font-medium text-sm shadow-md shadow-amber-600/20 hover:bg-amber-700 hover:shadow-lg hover:shadow-amber-600/25 active:scale-[0.98] transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400 focus-visible:ring-offset-2"
-              >
-                <Phone className="h-4 w-4" aria-hidden />
-                {TRAVEL_CONTACT}
-              </a>
+            {/* Contact cards grid */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              {TRAVEL_CONTACTS.map((contact, i) => (
+                <a
+                  key={i}
+                  href={`tel:${contact.phone.replace(/\s/g, "")}`}
+                  className={cn(
+                    "group flex items-center gap-3.5 p-3.5 rounded-2xl transition-all duration-200",
+                    "bg-white/80 border border-amber-100/80 hover:border-amber-200",
+                    "hover:shadow-md hover:shadow-amber-100/50 active:scale-[0.98]",
+                    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400 focus-visible:ring-offset-2"
+                  )}
+                >
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-amber-600 text-white text-sm font-semibold shadow-sm group-hover:bg-amber-700 transition-colors">
+                    {contact.name.charAt(0)}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="text-sm font-semibold text-neutral-800 truncate">
+                      {contact.name}
+                    </div>
+                    <div className="text-[12px] text-neutral-400 truncate">
+                      {contact.relation}
+                    </div>
+                  </div>
+                  <div className="shrink-0 flex items-center gap-1.5 text-amber-700 group-hover:text-amber-800 transition-colors">
+                    <Phone className="h-3.5 w-3.5" aria-hidden />
+                    <span className="text-[13px] font-medium hidden xs:inline">
+                      {contact.phone}
+                    </span>
+                  </div>
+                </a>
+              ))}
             </div>
           </div>
         </motion.div>
