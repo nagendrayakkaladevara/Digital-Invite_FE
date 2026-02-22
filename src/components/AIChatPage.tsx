@@ -230,7 +230,7 @@ export default function AIChatPage({
       role: "assistant",
       content: aiContent,
       timestamp: new Date(),
-      isStreaming: true,
+      isStreaming: result.ok,
     };
     setMessages((prev) => [...prev, aiMsg]);
     setIsTyping(false);
