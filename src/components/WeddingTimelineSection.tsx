@@ -1,214 +1,162 @@
+import { MapPin, CalendarPlus } from "lucide-react";
 import { Timeline } from "@/components/ui/timeline";
+
+/** Build Google Calendar "Add Event" URL. dates format: YYYYMMDDTHHMMSSZ/YYYYMMDDTHHMMSSZ */
+function buildCalendarUrl(
+  title: string,
+  startUTC: string,
+  endUTC: string,
+  location: string
+): string {
+  const params = new URLSearchParams({
+    action: "TEMPLATE",
+    text: title,
+    dates: `${startUTC}/${endUTC}`,
+    location,
+  });
+  return `https://calendar.google.com/calendar/render?${params.toString()}`;
+}
+
+/** Convert IST (UTC+5:30) to Google Calendar format YYYYMMDDTHHMMSSZ */
+function istToUTC(dateStr: string, hour: number, minute: number): string {
+  const [y, m, d] = dateStr.split("-").map(Number);
+  let totalMins = hour * 60 + minute - 330; // subtract 5:30 for UTC
+  let day = d;
+  if (totalMins < 0) {
+    totalMins += 24 * 60;
+    day -= 1;
+  }
+  const h = Math.floor(totalMins / 60);
+  const min = totalMins % 60;
+  const pad = (n: number) => String(n).padStart(2, "0");
+  return `${y}${pad(m)}${pad(day)}T${pad(h)}${pad(min)}00Z`;
+}
+
+const MAMIDIKUDURU_MAP = "https://www.google.com/maps/search/Mamidikuduru+Andhra+Pradesh";
+const JSK_GARDENS_MAP = "https://share.google/rAaFsheiBXXCqXhlY";
 
 const weddingEvents = [
   {
-    title: "Engagement",
-    date: "Our Beginning",
-    content: (
-      <div>
-        <p className="mb-6 text-sm font-normal leading-relaxed text-neutral-600 md:text-base">
-          Where it all began. A simple yes that set our hearts on this beautiful
-          journey together.
-        </p>
-        <div className="grid grid-cols-2 gap-3 md:gap-4">
-          <img
-            src="https://images.unsplash.com/photo-1522673607200-164d1b6ce486?w=500&q=80"
-            alt="Engagement"
-            width={500}
-            height={500}
-            className="h-24 w-full rounded-xl object-cover shadow-[0_0_20px_rgba(120,80,60,0.08),0_1px_2px_rgba(0,0,0,0.04)] md:h-36 lg:h-44"
-          />
-          <img
-            src="https://images.unsplash.com/photo-1519741497674-611481863552?w=500&q=80"
-            alt="Engagement rings"
-            width={500}
-            height={500}
-            className="h-24 w-full rounded-xl object-cover shadow-[0_0_20px_rgba(120,80,60,0.08),0_1px_2px_rgba(0,0,0,0.04)] md:h-36 lg:h-44"
-          />
-          <img
-            src="https://images.unsplash.com/photo-1529634137920-cf8d42939020?w=500&q=80"
-            alt="Couple"
-            width={500}
-            height={500}
-            className="col-span-2 h-28 w-full rounded-xl object-cover object-center shadow-[0_0_20px_rgba(120,80,60,0.08),0_1px_2px_rgba(0,0,0,0.04)] md:h-40 lg:h-48"
-          />
-        </div>
-      </div>
-    ),
+    title: "పెళ్లికొడుకు చేయటం",
+    date: "March 5th · Morning",
+    location: "Mamidikuduru",
+    mapUrl: MAMIDIKUDURU_MAP,
+    calendarStart: istToUTC("2026-03-05", 8, 0),
+    calendarEnd: istToUTC("2026-03-05", 11, 0),
   },
   {
-    title: "Mehndi",
-    date: "Colors & Joy",
-    content: (
-      <div>
-        <p className="mb-6 text-sm font-normal leading-relaxed text-neutral-600 md:text-base">
-          An evening of intricate henna, vibrant colors, and joyful dances. The
-          first of many celebrations with our loved ones.
-        </p>
-        <div className="grid grid-cols-2 gap-3 md:gap-4">
-          <img
-            src="https://images.unsplash.com/photo-1591604466107-ec97de577aff?w=500&q=80"
-            alt="Mehndi ceremony"
-            width={500}
-            height={500}
-            className="h-24 w-full rounded-xl object-cover shadow-[0_0_20px_rgba(120,80,60,0.08),0_1px_2px_rgba(0,0,0,0.04)] md:h-36 lg:h-44"
-          />
-          <img
-            src="https://images.unsplash.com/photo-1606800052052-a08af7148866?w=500&q=80"
-            alt="Traditional henna"
-            width={500}
-            height={500}
-            className="h-24 w-full rounded-xl object-cover shadow-[0_0_20px_rgba(120,80,60,0.08),0_1px_2px_rgba(0,0,0,0.04)] md:h-36 lg:h-44"
-          />
-          <img
-            src="https://images.unsplash.com/photo-1519225421980-715cb0215aed?w=500&q=80"
-            alt="Festive décor"
-            width={500}
-            height={500}
-            className="h-24 w-full rounded-xl object-cover shadow-[0_0_20px_rgba(120,80,60,0.08),0_1px_2px_rgba(0,0,0,0.04)] md:h-36 lg:h-44"
-          />
-          <img
-            src="https://images.unsplash.com/photo-1537633552985-df8429e8048b?w=500&q=80"
-            alt="Celebration"
-            width={500}
-            height={500}
-            className="h-24 w-full rounded-xl object-cover shadow-[0_0_20px_rgba(120,80,60,0.08),0_1px_2px_rgba(0,0,0,0.04)] md:h-36 lg:h-44"
-          />
-        </div>
-      </div>
-    ),
+    title: "గోరింటాకు పెట్టాం",
+    date: "March 6th · Morning",
+    location: "Mamidikuduru",
+    mapUrl: MAMIDIKUDURU_MAP,
+    calendarStart: istToUTC("2026-03-06", 8, 0),
+    calendarEnd: istToUTC("2026-03-06", 10, 0),
   },
   {
-    title: "Sangeet",
-    date: "Music & Dance",
-    content: (
-      <div>
-        <p className="mb-6 text-sm font-normal leading-relaxed text-neutral-600 md:text-base">
-          A night of rhythm and revelry. Family and friends came together to
-          celebrate with performances, laughter, and endless joy.
-        </p>
-        <div className="grid grid-cols-2 gap-3 md:gap-4">
-          <img
-            src="https://images.unsplash.com/photo-1511795409834-ef04bbd61622?w=500&q=80"
-            alt="Sangeet performance"
-            width={500}
-            height={500}
-            className="h-24 w-full rounded-xl object-cover shadow-[0_0_20px_rgba(120,80,60,0.08),0_1px_2px_rgba(0,0,0,0.04)] md:h-36 lg:h-44"
-          />
-          <img
-            src="https://images.unsplash.com/photo-1470229722913-7c5e01d8767b?w=500&q=80"
-            alt="Dance celebration"
-            width={500}
-            height={500}
-            className="h-24 w-full rounded-xl object-cover shadow-[0_0_20px_rgba(120,80,60,0.08),0_1px_2px_rgba(0,0,0,0.04)] md:h-36 lg:h-44"
-          />
-          <img
-            src="https://images.unsplash.com/photo-1464366400600-7168b8af9bc3?w=500&q=80"
-            alt="Party lights"
-            width={500}
-            height={500}
-            className="h-24 w-full rounded-xl object-cover shadow-[0_0_20px_rgba(120,80,60,0.08),0_1px_2px_rgba(0,0,0,0.04)] md:h-36 lg:h-44"
-          />
-          <img
-            src="https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=500&q=80"
-            alt="Wedding party"
-            width={500}
-            height={500}
-            className="h-24 w-full rounded-xl object-cover shadow-[0_0_20px_rgba(120,80,60,0.08),0_1px_2px_rgba(0,0,0,0.04)] md:h-36 lg:h-44"
-          />
-        </div>
-      </div>
-    ),
+    title: "గాజులు వేయటం",
+    date: "March 6th · Evening",
+    location: "Mamidikuduru",
+    mapUrl: MAMIDIKUDURU_MAP,
+    calendarStart: istToUTC("2026-03-06", 18, 0),
+    calendarEnd: istToUTC("2026-03-06", 21, 0),
   },
   {
-    title: "Wedding Ceremony",
-    date: "The Big Day",
-    content: (
-      <div>
-        <p className="mb-6 text-sm font-normal leading-relaxed text-neutral-600 md:text-base">
-          The moment we said our vows. Surrounded by tradition, love, and the
-          blessings of our families as we became one.
-        </p>
-        <div className="grid grid-cols-2 gap-3 md:gap-4">
-          <img
-            src="https://images.unsplash.com/photo-1519741497674-611481863552?w=500&q=80"
-            alt="Wedding ceremony"
-            width={500}
-            height={500}
-            className="h-24 w-full rounded-xl object-cover shadow-[0_0_20px_rgba(120,80,60,0.08),0_1px_2px_rgba(0,0,0,0.04)] md:h-36 lg:h-44"
-          />
-          <img
-            src="https://images.unsplash.com/photo-1583939003579-730e3918a45a?w=500&q=80"
-            alt="Wedding rings"
-            width={500}
-            height={500}
-            className="h-24 w-full rounded-xl object-cover shadow-[0_0_20px_rgba(120,80,60,0.08),0_1px_2px_rgba(0,0,0,0.04)] md:h-36 lg:h-44"
-          />
-          <img
-            src="https://images.unsplash.com/photo-1606216794074-735e91aa2c92?w=500&q=80"
-            alt="Bridal portrait"
-            width={500}
-            height={500}
-            className="h-24 w-full rounded-xl object-cover shadow-[0_0_20px_rgba(120,80,60,0.08),0_1px_2px_rgba(0,0,0,0.04)] md:h-36 lg:h-44"
-          />
-          <img
-            src="https://images.unsplash.com/photo-1511285560929-80b456fea0bc?w=500&q=80"
-            alt="Ceremony décor"
-            width={500}
-            height={500}
-            className="h-24 w-full rounded-xl object-cover shadow-[0_0_20px_rgba(120,80,60,0.08),0_1px_2px_rgba(0,0,0,0.04)] md:h-36 lg:h-44"
-          />
-        </div>
-      </div>
-    ),
+    title: "కళ్ల గొల్లు తీయటం",
+    date: "March 7th · Morning",
+    location: "Mamidikuduru",
+    mapUrl: MAMIDIKUDURU_MAP,
+    calendarStart: istToUTC("2026-03-07", 8, 0),
+    calendarEnd: istToUTC("2026-03-07", 9, 0),
   },
   {
-    title: "Reception",
-    date: "Celebration",
-    content: (
-      <div>
-        <p className="mb-6 text-sm font-normal leading-relaxed text-neutral-600 md:text-base">
-          A night to remember. Good food, great company, and countless smiles as
-          we celebrated the beginning of our forever.
-        </p>
-        <div className="grid grid-cols-2 gap-3 md:gap-4">
-          <img
-            src="https://images.unsplash.com/photo-1464366400600-7168b8af9bc3?w=500&q=80"
-            alt="Reception venue"
-            width={500}
-            height={500}
-            className="h-24 w-full rounded-xl object-cover shadow-[0_0_20px_rgba(120,80,60,0.08),0_1px_2px_rgba(0,0,0,0.04)] md:h-36 lg:h-44"
-          />
-          <img
-            src="https://images.unsplash.com/photo-1519167758481-83f550bb49b3?w=500&q=80"
-            alt="Wedding cake"
-            width={500}
-            height={500}
-            className="h-24 w-full rounded-xl object-cover shadow-[0_0_20px_rgba(120,80,60,0.08),0_1px_2px_rgba(0,0,0,0.04)] md:h-36 lg:h-44"
-          />
-          <img
-            src="https://images.unsplash.com/photo-1511795409834-ef04bbd61622?w=500&q=80"
-            alt="First dance"
-            width={500}
-            height={500}
-            className="h-24 w-full rounded-xl object-cover shadow-[0_0_20px_rgba(120,80,60,0.08),0_1px_2px_rgba(0,0,0,0.04)] md:h-36 lg:h-44"
-          />
-          <img
-            src="https://images.unsplash.com/photo-1519741497674-611481863552?w=500&q=80"
-            alt="Newlyweds"
-            width={500}
-            height={500}
-            className="h-24 w-full rounded-xl object-cover shadow-[0_0_20px_rgba(120,80,60,0.08),0_1px_2px_rgba(0,0,0,0.04)] md:h-36 lg:h-44"
-          />
-        </div>
-      </div>
-    ),
+    title: "కంకణం కట్టటం",
+    date: "March 7th · Morning",
+    location: "Mamidikuduru",
+    mapUrl: MAMIDIKUDURU_MAP,
+    calendarStart: istToUTC("2026-03-07", 9, 0),
+    calendarEnd: istToUTC("2026-03-07", 10, 30),
+  },
+  {
+    title: "పెళ్లికొడుకు ఇంటి దగ్గర విందు",
+    date: "March 7th · 11:30 AM onwards",
+    location: "Mamidikuduru",
+    mapUrl: MAMIDIKUDURU_MAP,
+    calendarStart: istToUTC("2026-03-07", 11, 30),
+    calendarEnd: istToUTC("2026-03-07", 14, 0),
+  },
+  {
+    title: "పెళ్లి",
+    date: "March 8th · 2:30 AM (early hours)",
+    location: "Eluru J S K Gardens",
+    mapUrl: JSK_GARDENS_MAP,
+    calendarStart: istToUTC("2026-03-08", 2, 30),
+    calendarEnd: istToUTC("2026-03-08", 6, 0),
+  },
+  {
+    title: "శ్రీ సత్యనారాయణ స్వామి వ్రతం",
+    date: "March 8th · Morning",
+    location: "Mamidikuduru",
+    mapUrl: MAMIDIKUDURU_MAP,
+    calendarStart: istToUTC("2026-03-08", 8, 0),
+    calendarEnd: istToUTC("2026-03-08", 11, 0),
+  },
+  {
+    title: "యజ్ఞాల అనంతరం భోజనం",
+    date: "March 9th · Morning",
+    location: "Mamidikuduru",
+    mapUrl: MAMIDIKUDURU_MAP,
+    calendarStart: istToUTC("2026-03-09", 9, 0),
+    calendarEnd: istToUTC("2026-03-09", 12, 0),
   },
 ];
+
+const weddingEventsWithContent = weddingEvents.map((evt) => {
+  const calendarUrl = buildCalendarUrl(
+    evt.title,
+    evt.calendarStart,
+    evt.calendarEnd,
+    evt.location
+  );
+
+  return {
+    title: evt.title,
+    content: (
+      <div>
+        <p className="mb-2 text-sm font-medium text-neutral-500 dark:text-neutral-400">
+          {evt.date}
+        </p>
+        <p className="mb-4 text-sm font-medium text-amber-700 dark:text-amber-600">
+          📍 {evt.location}
+        </p>
+        <div className="flex flex-wrap gap-3">
+          <a
+            href={evt.mapUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 rounded-lg border border-amber-200 bg-amber-50/80 px-4 py-2.5 text-sm font-medium text-amber-900 transition hover:bg-amber-100 hover:border-amber-300 focus:outline-none focus:ring-2 focus:ring-amber-400/50"
+          >
+            <MapPin className="h-4 w-4" aria-hidden />
+            <span>View on Map</span>
+          </a>
+          <a
+            href={calendarUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 rounded-lg border border-rose-200 bg-rose-50/80 px-4 py-2.5 text-sm font-medium text-rose-900 transition hover:bg-rose-100 hover:border-rose-300 focus:outline-none focus:ring-2 focus:ring-rose-400/50"
+          >
+            <CalendarPlus className="h-4 w-4" aria-hidden />
+            <span>Add to Calendar</span>
+          </a>
+        </div>
+      </div>
+    ),
+  };
+});
 
 export default function WeddingTimelineSection() {
   return (
     <section
+      id="timeline"
       className="relative w-full overflow-hidden bg-[linear-gradient(180deg,oklch(0.97_0.01_264)_0%,oklch(0.99_0_0)_50%,oklch(0.98_0.02_30)_100%)]"
       aria-label="Wedding timeline"
     >
@@ -223,9 +171,9 @@ export default function WeddingTimelineSection() {
       </div>
       <div className="relative w-full">
         <Timeline
-          data={weddingEvents}
+          data={weddingEventsWithContent}
           title="Events Timeline"
-          subtitle="From the engagement to the reception—every moment that led us here."
+          subtitle="పెళ్లికొడుకు చేయటం to యజ్ఞాల అనంతరం భోజనం — every moment that led us here."
           gradientColors={["#f59e0b", "#fb7185", "transparent"]}
         />
       </div>

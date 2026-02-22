@@ -229,6 +229,7 @@ export default function TravelAssistanceSection() {
 
   return (
     <section
+      id="travel"
       className="relative w-full overflow-hidden bg-[linear-gradient(180deg,oklch(0.99_0.01_30)_0%,oklch(0.98_0.015_40)_50%,oklch(0.97_0.02_25)_100%)]"
       aria-label="Travel assistance"
     >
@@ -255,9 +256,14 @@ export default function TravelAssistanceSection() {
           viewport={{ once: true, margin: "-50px" }}
           transition={{ duration: 0.5, ease: [0.25, 0.46, 0.45, 0.94] }}
         >
-          <h2 className="text-2xl md:text-4xl font-bold font-josefin text-neutral-800 mb-5">
-            🧭 Travel Assistance
-          </h2>
+          <div className="flex flex-wrap items-center justify-center gap-3 mb-5">
+            <h2 className="text-2xl md:text-4xl font-bold font-josefin text-neutral-800">
+              🧭 Travel Assistance
+            </h2>
+            <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-amber-100 text-amber-800 border border-amber-200/80">
+              Work in progress
+            </span>
+          </div>
           <p className="text-neutral-600 text-lg md:text-xl max-w-xl mx-auto leading-relaxed font-josefin tracking-tight">
             So glad you're joining us.
           </p>
@@ -477,33 +483,35 @@ export default function TravelAssistanceSection() {
           </AnimatePresence>
         </div>
 
-        {/* Venue Location */}
-        <motion.div
-          className="mt-14 md:mt-16 p-5 md:p-6 rounded-2xl bg-white/70 border border-neutral-200/80 shadow-[0_4px_20px_rgba(0,0,0,0.04)]"
-          initial={{ opacity: 0, y: 12 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-50px" }}
-          transition={{ duration: 0.5, ease: [0.25, 0.46, 0.45, 0.94] }}
-        >
-          <h3 className="text-base md:text-lg font-semibold font-josefin text-neutral-800 mb-2 flex items-center gap-2">
-            <MapPin className="h-5 w-5 text-amber-600" aria-hidden />
-            Venue Location
-          </h3>
-          <p className="text-neutral-600 text-sm mb-4">
-            You can easily navigate to the venue using Google Maps. We recommend
-            checking live traffic conditions before starting your final leg of
-            travel.
-          </p>
-          <a
-            href={VENUE_MAPS_URL}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-amber-600 text-white font-medium text-sm hover:bg-amber-700 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400 focus-visible:ring-offset-2"
+        {/* Venue Location - hidden for now */}
+        {false && (
+          <motion.div
+            className="mt-14 md:mt-16 p-5 md:p-6 rounded-2xl bg-white/70 border border-neutral-200/80 shadow-[0_4px_20px_rgba(0,0,0,0.04)]"
+            initial={{ opacity: 0, y: 12 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-50px" }}
+            transition={{ duration: 0.5, ease: [0.25, 0.46, 0.45, 0.94] }}
           >
-            <ChevronRight className="h-4 w-4" aria-hidden />
-            Open Venue in Google Maps
-          </a>
-        </motion.div>
+            <h3 className="text-base md:text-lg font-semibold font-josefin text-neutral-800 mb-2 flex items-center gap-2">
+              <MapPin className="h-5 w-5 text-amber-600" aria-hidden />
+              Venue Location
+            </h3>
+            <p className="text-neutral-600 text-sm mb-4">
+              You can easily navigate to the venue using Google Maps. We recommend
+              checking live traffic conditions before starting your final leg of
+              travel.
+            </p>
+            <a
+              href={VENUE_MAPS_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-amber-600 text-white font-medium text-sm hover:bg-amber-700 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400 focus-visible:ring-offset-2"
+            >
+              <ChevronRight className="h-4 w-4" aria-hidden />
+              Open Venue in Google Maps
+            </a>
+          </motion.div>
+        )}
 
         {/* Contact */}
         <motion.div

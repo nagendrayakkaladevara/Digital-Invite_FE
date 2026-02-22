@@ -13,10 +13,10 @@ const ASPECT_HEIGHT = 16;
 /**
  * Wedding video section with YouTube Shorts (9:16) aspect ratio.
  * Mobile-first, viewport-based sizing with viewport-triggered play/pause.
- * Starts muted for autoplay; user can unmute via toggle.
+ * Audio plays by default; user can mute via toggle.
  */
 export default function WeddingVideoSection() {
-  const [isMuted, setIsMuted] = useState(true);
+  const [isMuted, setIsMuted] = useState(false);
 
   const videoRef = useViewportVideo<HTMLVideoElement>({
     threshold: 0.2,
@@ -30,6 +30,7 @@ export default function WeddingVideoSection() {
 
   return (
     <section
+      id="video"
       className={cn(
         "relative flex min-h-[min(100dvh,56.25vw)] w-full items-center justify-center",
         "bg-[linear-gradient(180deg,oklch(0.99_0_0)_0%,oklch(0.97_0.01_264)_100%)]",

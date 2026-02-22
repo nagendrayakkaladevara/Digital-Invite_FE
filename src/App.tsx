@@ -1,19 +1,40 @@
-import { useState } from "react";
+import { useEffect } from "react";
+import { Routes, Route, useLocation, Link } from "react-router-dom";
 import { HeroHighlight, Highlight } from "./components/ui/hero-highlight"
 import { motion } from "motion/react";
 import ShinyText from './components/ShinyText';
 import WeddingVideoSection from './components/WeddingVideoSection';
 import WeddingTimelineSection from './components/WeddingTimelineSection';
 import TravelAssistanceSection from './components/TravelAssistanceSection';
-import WelcomePopup from './components/WelcomePopup';
 import AIChatPage from './components/AIChatPage';
 import logo from './assets/video/logo.svg';
 
-function App() {
-  const [isAIChatOpen, setIsAIChatOpen] = useState(false);
+const SECTION_IDS = ["hero", "video", "timeline", "travel"] as const;
+
+function useScrollToSection() {
+  const { hash, search } = useLocation();
+
+  useEffect(() => {
+    const sectionId =
+      hash?.slice(1) ||
+      new URLSearchParams(search).get("section");
+    if (!sectionId || !SECTION_IDS.includes(sectionId as (typeof SECTION_IDS)[number])) return;
+
+    const el = document.getElementById(sectionId);
+    if (el) {
+      const timer = setTimeout(() => {
+        el.scrollIntoView({ behavior: "smooth", block: "start" });
+      }, 100);
+      return () => clearTimeout(timer);
+    }
+  }, [hash, search]);
+}
+
+function LandingPage() {
+  useScrollToSection();
+
   return (
     <div className="min-h-screen w-full bg-white relative overflow-x-hidden">
-      <WelcomePopup />
       {/* Diagonal Cross Grid Top Background */}
       {/* <div
         className="absolute inset-0"
@@ -46,7 +67,7 @@ function App() {
           />
         </motion.a>
       </header> */}
-      <section className="relative min-h-dvh h-dvh w-full">
+      <section id="hero" className="relative min-h-dvh h-dvh w-full">
       <HeroHighlight containerClassName="min-h-dvh">
         <motion.img
           src={logo}
@@ -82,13 +103,12 @@ function App() {
       <WeddingVideoSection />
       <WeddingTimelineSection />
       <TravelAssistanceSection />
-      <AIChatPage isOpen={isAIChatOpen} onClose={() => setIsAIChatOpen(false)} />
       {/* AI button fixed at bottom of viewport */}
       <div className="fixed bottom-0 left-0 right-0 z-30 flex justify-center pb-6 px-4">
-        <button
-          type="button"
-          onClick={() => setIsAIChatOpen(true)}
-          className="group relative inline-flex items-center justify-center rounded-full border border-neutral-200/80 bg-white/90 px-6 py-3 text-sm font-medium text-neutral-600 shadow-lg backdrop-blur-sm transition-all duration-300 hover:border-neutral-300 hover:bg-white hover:shadow-xl hover:shadow-neutral-200/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-400/40 focus-visible:ring-offset-2 active:scale-[0.98] dark:border-neutral-700/80 dark:bg-neutral-900/90 dark:text-neutral-300 dark:hover:border-neutral-600 dark:hover:bg-neutral-900 dark:hover:shadow-neutral-950/50 dark:focus-visible:ring-neutral-500/40"
+        <Link
+          to="/chat"
+          role="button"
+          className="group relative inline-flex items-center justify-center rounded-full border-2 border-neutral-300 bg-white/90 px-6 py-3 text-sm font-medium text-neutral-600 shadow-lg backdrop-blur-sm transition-all duration-300 hover:border-neutral-400 hover:bg-white hover:shadow-xl hover:shadow-neutral-200/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-400/40 focus-visible:ring-offset-2 active:scale-[0.98] dark:border-neutral-600 dark:bg-neutral-900/90 dark:text-neutral-300 dark:hover:border-neutral-500 dark:hover:bg-neutral-900 dark:hover:shadow-neutral-950/50 dark:focus-visible:ring-neutral-500/40"
           aria-label="Nagendra's AI"
         >
           <ShinyText
@@ -104,10 +124,19 @@ function App() {
             disabled={false}
             className="font-medium"
           />
-        </button>
+        </Link>
       </div>
     </div>
-  )
+  );
+}
+
+function App() {
+  return (
+    <Routes>
+      <Route path="/" element={<LandingPage />} />
+      <Route path="/chat" element={<AIChatPage isStandalone onCloseNavigate="/" />} />
+    </Routes>
+  );
 }
 
 export default App

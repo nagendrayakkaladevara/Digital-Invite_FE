@@ -1,11 +1,23 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "motion/react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import { X, Send, Sparkles, Plus } from "lucide-react";
+import { X, Send, Sparkles, Plus, User, ChevronDown } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuLabel,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
+import { sendChatMessage, type ChatModel } from "@/lib/marriageApi";
 
 interface Message {
   id: string;
@@ -14,77 +26,26 @@ interface Message {
   timestamp: Date;
 }
 
-// Simulated wedding AI responses in markdown format
-const MOCK_RESPONSES: Record<string, string> = {
-  default: `**Welcome!** I'm Nagendra's AI assistant for the wedding. 🎉
+const DEFAULT_MODEL: ChatModel = "sarvam-m";
 
-I can help you with:
-- **Venue & Directions** — How to reach the wedding venue
-- **Schedule** — Pellikoduku, March 7th lunch, Pelli timing, and more
-- **Travel** — Best routes from Hyderabad, Bangalore, Chennai, Vizag, Vijayawada
-- **Accommodation** — Nearby stays and contact details
-- **Dress code** — What to wear for each event
+const MODEL_OPTIONS: { value: ChatModel; label: string }[] = [
+  { value: "gemini-3-flash-preview", label: "Gemini" },
+  { value: "sarvam-m", label: "Sarvam" },
+];
 
-*Just ask me anything!* ✨`,
+const WELCOME_BACKGROUND = `🎉 Welcome to Nagendra's Wedding Assistant! 💖
 
-  venue: `## Venue Information 📍
+I'm here to make your wedding journey smooth, joyful, and stress-free 🌸
 
-**Main Venue:** Hyderabad (exact address shared on invitation)
+✨ Here's how I can help you:
 
-### Directions
-1. **By flight** — Rajiv Gandhi Airport (HYD) → ~45 min by car
-2. **By train** — Secunderabad Junction → ~25 min
-3. **By bus** — MGBS Bus Stand → ~20 min
+📍 Venue & Directions — Easy navigation and the best ways to reach the wedding venue.
 
-Need *turn-by-turn directions*? Ask me for travel from your city!`,
+🗓️ Events — Pellikoduku, March 7th lunch, Pelli muhurtham timings & every special moment.
 
-  schedule: `## Wedding Schedule 📅
+🚗✈️ Travel Help — Smart routes and transport options from Hyderabad, Bangalore, Chennai, Vizag & Vijayawada.
 
-| Event | Date | Time |
-|-------|------|------|
-| Pellikoduku Cheytam | March 7 | Morning |
-| March 7th Lunch | March 7 | Afternoon |
-| **Pelli (Wedding)** | **March 8** | **02:35 AM** |
-| Sathanamuthi Ratham | March 8 | Post-wedding |
-| Yarnalu Lunch | March 8 | Afternoon |
-
-_All timings are in IST._`,
-
-  travel: `## Travel Assistance 🚗✈️
-
-I can help you plan travel from:
-- Hyderabad
-- Bangalore  
-- Chennai
-- Vizag
-- Vijayawada
-
-**Tell me your city and preferred mode** (flight/train/bus/car) and I'll share the best route!
-
-The Travel section on the main page also has an interactive map. 🗺️`,
-
-  dress: `## Dress Code 👗👔
-
-**Pellikoduku Cheytam** — Traditional / Semi-formal  
-**March 7th Lunch** — Smart casual  
-**Wedding (Pelli)** — **Traditional attire** (sarees, kurta, dhoti)  
-**Yarnalu Lunch** — Comfortable traditional
-
-*When in doubt, traditional Indian wear is always welcome!* 🌸`,
-};
-
-function getAIResponse(userMessage: string): string {
-  const lower = userMessage.toLowerCase();
-  if (lower.includes("venue") || lower.includes("where") || lower.includes("location") || lower.includes("address"))
-    return MOCK_RESPONSES.venue;
-  if (lower.includes("schedule") || lower.includes("timing") || lower.includes("when") || lower.includes("date"))
-    return MOCK_RESPONSES.schedule;
-  if (lower.includes("travel") || lower.includes("how to reach") || lower.includes("route") || lower.includes("from "))
-    return MOCK_RESPONSES.travel;
-  if (lower.includes("dress") || lower.includes("wear") || lower.includes("attire"))
-    return MOCK_RESPONSES.dress;
-  return MOCK_RESPONSES.default;
-}
+💬 Just ask me anything — I'm here to help you celebrate with ease and excitement! ✨`;
 
 const markdownStyles = `
   .ai-chat-markdown h1 { @apply text-base font-semibold mt-4 mb-2 first:mt-0 text-neutral-900; }
@@ -107,27 +68,34 @@ const markdownStyles = `
 `;
 
 interface AIChatPageProps {
-  isOpen: boolean;
-  onClose: () => void;
+  isOpen?: boolean;
+  onClose?: () => void;
+  isStandalone?: boolean;
+  onCloseNavigate?: string;
 }
 
-export default function AIChatPage({ isOpen, onClose }: AIChatPageProps) {
+export default function AIChatPage({
+  isOpen = false,
+  onClose,
+  isStandalone = false,
+  onCloseNavigate = "/",
+}: AIChatPageProps) {
+  const navigate = useNavigate();
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
+  const [model, setModel] = useState<ChatModel>(DEFAULT_MODEL);
   const [isTyping, setIsTyping] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    if (isOpen && messages.length === 0) {
-      const welcome: Message = {
-        id: crypto.randomUUID(),
-        role: "assistant",
-        content: MOCK_RESPONSES.default,
-        timestamp: new Date(),
-      };
-      setMessages([welcome]);
+  const showChat = isStandalone || isOpen;
+  const handleClose = () => {
+    if (isStandalone && onCloseNavigate) {
+      navigate(onCloseNavigate);
+    } else {
+      onClose?.();
     }
-  }, [isOpen]);
+  };
+
 
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
@@ -147,20 +115,33 @@ export default function AIChatPage({ isOpen, onClose }: AIChatPageProps) {
     setInput("");
     setIsTyping(true);
 
-    await new Promise((r) => setTimeout(r, 800 + Math.random() * 600));
+    const result = await sendChatMessage(model, text);
 
-    const aiContent = getAIResponse(text);
-    const aiMsg: Message = {
-      id: crypto.randomUUID(),
-      role: "assistant",
-      content: aiContent,
-      timestamp: new Date(),
-    };
-    setMessages((prev) => [...prev, aiMsg]);
+    if (result.ok) {
+      const aiMsg: Message = {
+        id: crypto.randomUUID(),
+        role: "assistant",
+        content: result.response,
+        timestamp: new Date(),
+      };
+      setMessages((prev) => [...prev, aiMsg]);
+    } else {
+      const errorContent =
+        result.status === 0
+          ? `**Connection error** — ${result.error}`
+          : `**Error** — ${result.error}`;
+      const aiMsg: Message = {
+        id: crypto.randomUUID(),
+        role: "assistant",
+        content: errorContent,
+        timestamp: new Date(),
+      };
+      setMessages((prev) => [...prev, aiMsg]);
+    }
     setIsTyping(false);
   };
 
-  if (!isOpen) return null;
+  if (!showChat) return null;
 
   return (
     <AnimatePresence>
@@ -185,7 +166,33 @@ export default function AIChatPage({ isOpen, onClose }: AIChatPageProps) {
             </div>
             <span className="font-medium text-neutral-800 text-sm sm:text-base">Nagendra&apos;s AI</span>
           </div>
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-2 sm:gap-3">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  disabled={isTyping}
+                  className="gap-1.5 min-w-28 justify-between"
+                  aria-label="Select AI model"
+                >
+                  {MODEL_OPTIONS.find((o) => o.value === model)?.label ?? model}
+                  <ChevronDown className="h-4 w-4 opacity-50" strokeWidth={2} />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-40">
+                <DropdownMenuGroup>
+                  <DropdownMenuLabel>AI Model</DropdownMenuLabel>
+                  <DropdownMenuRadioGroup value={model} onValueChange={(v) => setModel(v as ChatModel)}>
+                    {MODEL_OPTIONS.map((opt) => (
+                      <DropdownMenuRadioItem key={opt.value} value={opt.value}>
+                        {opt.label}
+                      </DropdownMenuRadioItem>
+                    ))}
+                  </DropdownMenuRadioGroup>
+                </DropdownMenuGroup>
+              </DropdownMenuContent>
+            </DropdownMenu>
             <button
               type="button"
               onClick={() => {
@@ -199,9 +206,9 @@ export default function AIChatPage({ isOpen, onClose }: AIChatPageProps) {
             </button>
             <motion.button
               whileTap={{ scale: 0.94 }}
-              onClick={onClose}
+              onClick={handleClose}
               className="flex h-9 w-9 items-center justify-center rounded-lg text-neutral-500 hover:bg-neutral-100 hover:text-neutral-700 transition-colors"
-              aria-label="Close chat"
+              aria-label={isStandalone ? "Back to invitation" : "Close chat"}
             >
               <X className="h-5 w-5" />
             </motion.button>
@@ -211,8 +218,16 @@ export default function AIChatPage({ isOpen, onClose }: AIChatPageProps) {
         {/* Messages - ChatGPT layout: full-width, centered content, avatar for AI */}
         <div
           ref={scrollRef}
-          className="flex-1 overflow-y-auto overscroll-contain bg-neutral-50/50"
+          className="flex-1 overflow-y-auto overscroll-contain bg-neutral-50/50 relative"
         >
+          {/* Background welcome text when no messages */}
+          {messages.length === 0 && (
+            <div className="absolute inset-0 flex items-center justify-center px-4 sm:px-6 py-6 pointer-events-none">
+              <p className="max-w-xl text-center text-[15px] leading-[1.7] text-neutral-500/90 whitespace-pre-wrap">
+                {WELCOME_BACKGROUND}
+              </p>
+            </div>
+          )}
           <div className="mx-auto w-full max-w-3xl px-4 sm:px-6 py-6 space-y-1">
             {messages.map((msg) => (
               <motion.div
@@ -231,7 +246,11 @@ export default function AIChatPage({ isOpen, onClose }: AIChatPageProps) {
                     <Sparkles className="h-4 w-4 sm:h-[18px] sm:w-[18px] text-white" strokeWidth={2.5} />
                   </div>
                 )}
-                {msg.role === "user" && <div className="w-8 sm:w-9 shrink-0" />}
+                {msg.role === "user" && (
+                  <div className="shrink-0 flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-md bg-neutral-300">
+                    <User className="h-4 w-4 sm:h-[18px] sm:w-[18px] text-neutral-600" strokeWidth={2.5} />
+                  </div>
+                )}
                 <div
                   className={cn(
                     "min-w-0 flex-1",
@@ -270,7 +289,7 @@ export default function AIChatPage({ isOpen, onClose }: AIChatPageProps) {
                   exit={{ opacity: 0 }}
                   className="flex gap-3 sm:gap-4 py-4 sm:py-5"
                 >
-                  <div className="shrink-0 flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-md bg-emerald-500">
+                  <div className="shrink-0 flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-md bg-neutral-700">
                     <Sparkles className="h-4 w-4 text-white" strokeWidth={2.5} />
                   </div>
                   <div className="rounded-2xl rounded-tl-md bg-white border border-neutral-200/80 px-4 py-3 shadow-sm">
@@ -299,7 +318,7 @@ export default function AIChatPage({ isOpen, onClose }: AIChatPageProps) {
         {/* ChatGPT-style input bar */}
         <div className="shrink-0 border-t border-neutral-200/80 bg-white px-4 sm:px-6 py-4">
           <div className="mx-auto max-w-3xl">
-            <div className="flex items-end gap-2 rounded-2xl border border-neutral-200 bg-white px-3 py-2 shadow-sm focus-within:border-neutral-400 focus-within:ring-2 focus-within:ring-neutral-200 transition-all">
+            <div className="flex items-end gap-2 rounded-none border border-neutral-200 bg-white px-3 py-2 shadow-sm focus-within:border-neutral-400 focus-within:ring-2 focus-within:ring-neutral-200 transition-all">
               <input
                 type="text"
                 value={input}
@@ -313,7 +332,6 @@ export default function AIChatPage({ isOpen, onClose }: AIChatPageProps) {
                 placeholder="Message Nagendra's AI..."
                 className="flex-1 min-h-[44px] bg-transparent px-2 py-2 text-[15px] text-neutral-800 placeholder:text-neutral-400 focus:outline-none"
                 disabled={isTyping}
-                autoFocus
               />
               <motion.button
                 whileTap={{ scale: 0.92 }}
