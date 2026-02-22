@@ -15,14 +15,13 @@ import {
   Calendar,
   Car,
   MessageCircle,
+  Check,
 } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuGroup,
   DropdownMenuLabel,
-  DropdownMenuRadioGroup,
-  DropdownMenuRadioItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
@@ -33,6 +32,7 @@ interface Message {
   role: "user" | "assistant";
   content: string;
   timestamp: Date;
+  isStreaming?: boolean;
 }
 
 const DEFAULT_MODEL: ChatModel = "sarvam-m";
@@ -64,6 +64,71 @@ const SUGGESTION_PROMPTS = [
     prompt: "Tell me everything I need to know about the wedding celebrations!",
   },
 ];
+
+// --- Streaming text hook ---
+function useStreamText(
+  fullText: string,
+  enabled: boolean,
+  speed = 18
+): { displayed: string; done: boolean } {
+  const [charIndex, setCharIndex] = useState(0);
+
+  useEffect(() => {
+    if (!enabled || !fullText) {
+      setCharIndex(fullText.length);
+      return;
+    }
+    setCharIndex(0);
+  }, [fullText, enabled]);
+
+  useEffect(() => {
+    if (!enabled || charIndex >= fullText.length) return;
+    const timer = setTimeout(() => {
+      // Reveal in small chunks (2-4 chars) for a natural feel
+      const chunk = Math.min(
+        fullText.length - charIndex,
+        Math.floor(Math.random() * 3) + 2
+      );
+      setCharIndex((prev) => prev + chunk);
+    }, speed);
+    return () => clearTimeout(timer);
+  }, [charIndex, fullText, enabled, speed]);
+
+  return {
+    displayed: fullText.slice(0, charIndex),
+    done: charIndex >= fullText.length,
+  };
+}
+
+// Component for a single AI message with streaming
+function StreamingMessage({
+  content,
+  shouldStream,
+  onStreamDone,
+}: {
+  content: string;
+  shouldStream: boolean;
+  onStreamDone: () => void;
+}) {
+  const { displayed, done } = useStreamText(content, shouldStream);
+
+  useEffect(() => {
+    if (done && shouldStream) {
+      onStreamDone();
+    }
+  }, [done, shouldStream, onStreamDone]);
+
+  return (
+    <div className="ai-chat-md">
+      <ReactMarkdown remarkPlugins={[remarkGfm]}>
+        {shouldStream ? displayed : content}
+      </ReactMarkdown>
+      {shouldStream && !done && (
+        <span className="inline-block w-[2px] h-[18px] bg-neutral-400 align-text-bottom ml-0.5 animate-pulse" />
+      )}
+    </div>
+  );
+}
 
 interface AIChatPageProps {
   isOpen?: boolean;
@@ -103,6 +168,19 @@ export default function AIChatPage({
     });
   }, [messages, isTyping]);
 
+  // Keep scrolling during streaming
+  useEffect(() => {
+    const hasStreaming = messages.some((m) => m.isStreaming);
+    if (!hasStreaming) return;
+    const interval = setInterval(() => {
+      scrollRef.current?.scrollTo({
+        top: scrollRef.current.scrollHeight,
+        behavior: "smooth",
+      });
+    }, 120);
+    return () => clearInterval(interval);
+  }, [messages]);
+
   // Auto-resize textarea
   const resizeTextarea = useCallback(() => {
     const ta = textareaRef.current;
@@ -114,6 +192,12 @@ export default function AIChatPage({
   useEffect(() => {
     resizeTextarea();
   }, [input, resizeTextarea]);
+
+  const handleStreamDone = useCallback((msgId: string) => {
+    setMessages((prev) =>
+      prev.map((m) => (m.id === msgId ? { ...m, isStreaming: false } : m))
+    );
+  }, []);
 
   const handleSend = async (text?: string) => {
     const msg = (text ?? input).trim();
@@ -135,27 +219,20 @@ export default function AIChatPage({
 
     const result = await sendChatMessage(model, msg);
 
-    if (result.ok) {
-      const aiMsg: Message = {
-        id: crypto.randomUUID(),
-        role: "assistant",
-        content: result.response,
-        timestamp: new Date(),
-      };
-      setMessages((prev) => [...prev, aiMsg]);
-    } else {
-      const errorContent =
-        result.status === 0
-          ? `**Connection error** — ${result.error}`
-          : `**Error** — ${result.error}`;
-      const aiMsg: Message = {
-        id: crypto.randomUUID(),
-        role: "assistant",
-        content: errorContent,
-        timestamp: new Date(),
-      };
-      setMessages((prev) => [...prev, aiMsg]);
-    }
+    const aiContent = result.ok
+      ? result.response
+      : result.status === 0
+        ? `**Connection error** — ${result.error}`
+        : `**Error** — ${result.error}`;
+
+    const aiMsg: Message = {
+      id: crypto.randomUUID(),
+      role: "assistant",
+      content: aiContent,
+      timestamp: new Date(),
+      isStreaming: true,
+    };
+    setMessages((prev) => [...prev, aiMsg]);
     setIsTyping(false);
   };
 
@@ -183,7 +260,7 @@ export default function AIChatPage({
           <motion.button
             whileTap={{ scale: 0.92 }}
             onClick={handleClose}
-            className="flex items-center gap-1.5 text-neutral-500 hover:text-neutral-900 transition-colors rounded-lg px-2 py-1.5 hover:bg-neutral-50"
+            className="flex items-center gap-1.5 text-neutral-500 hover:text-neutral-900 transition-colors rounded-lg px-2 py-1.5 hover:bg-neutral-50 min-w-[72px]"
             aria-label="Back to invitation"
           >
             <ArrowLeft className="h-[18px] w-[18px]" strokeWidth={2} />
@@ -220,25 +297,29 @@ export default function AIChatPage({
                 <DropdownMenuLabel className="text-[11px] uppercase tracking-wider text-neutral-400 font-medium px-3 pt-2 pb-1">
                   Model
                 </DropdownMenuLabel>
-                <DropdownMenuRadioGroup
-                  value={model}
-                  onValueChange={(v) => setModel(v as ChatModel)}
-                >
-                  {MODEL_OPTIONS.map((opt) => (
-                    <DropdownMenuRadioItem
-                      key={opt.value}
-                      value={opt.value}
-                      className="rounded-lg mx-1 px-3 py-2 text-sm cursor-pointer focus:bg-neutral-50 focus:text-neutral-900 data-[state=checked]:text-neutral-900"
-                    >
-                      <div>
-                        <div className="font-medium">{opt.label}</div>
-                        <div className="text-[11px] text-neutral-400 mt-0.5">
-                          {opt.desc}
-                        </div>
+                {MODEL_OPTIONS.map((opt) => (
+                  <button
+                    key={opt.value}
+                    onClick={() => setModel(opt.value)}
+                    className={cn(
+                      "flex items-center gap-3 w-full text-left rounded-lg mx-auto px-3 py-2.5 text-sm transition-colors",
+                      "hover:bg-neutral-50 cursor-pointer",
+                      model === opt.value
+                        ? "text-neutral-900"
+                        : "text-neutral-600"
+                    )}
+                  >
+                    <div className="flex-1 min-w-0">
+                      <div className="font-medium">{opt.label}</div>
+                      <div className="text-[11px] text-neutral-400 mt-0.5">
+                        {opt.desc}
                       </div>
-                    </DropdownMenuRadioItem>
-                  ))}
-                </DropdownMenuRadioGroup>
+                    </div>
+                    {model === opt.value && (
+                      <Check className="h-4 w-4 text-neutral-500 shrink-0" strokeWidth={2} />
+                    )}
+                  </button>
+                ))}
               </DropdownMenuGroup>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -250,7 +331,7 @@ export default function AIChatPage({
               setMessages([]);
               setInput("");
             }}
-            className="flex items-center gap-1.5 text-neutral-500 hover:text-neutral-900 transition-colors rounded-lg px-2 py-1.5 hover:bg-neutral-50"
+            className="flex items-center gap-1.5 text-neutral-500 hover:text-neutral-900 transition-colors rounded-lg px-2 py-1.5 hover:bg-neutral-50 min-w-[72px] justify-end"
             aria-label="New chat"
           >
             <RotateCcw className="h-[18px] w-[18px]" strokeWidth={2} />
@@ -353,7 +434,6 @@ export default function AIChatPage({
                   )}
                 >
                   {msg.role === "user" ? (
-                    /* User message — right-aligned bubble */
                     <div className="max-w-[85%] sm:max-w-[75%]">
                       <div className="inline-block rounded-3xl rounded-br-lg bg-neutral-100 px-4 sm:px-5 py-2.5 sm:py-3">
                         <p className="text-[15px] text-neutral-800 leading-relaxed whitespace-pre-wrap">
@@ -362,7 +442,6 @@ export default function AIChatPage({
                       </div>
                     </div>
                   ) : (
-                    /* AI message — full width, avatar */
                     <div className="flex gap-3 sm:gap-4">
                       <div className="shrink-0 mt-0.5">
                         <div className="flex h-7 w-7 sm:h-8 sm:w-8 items-center justify-center rounded-full bg-gradient-to-br from-[#c9956b] to-[#a67c52] shadow-sm">
@@ -372,17 +451,19 @@ export default function AIChatPage({
                           />
                         </div>
                       </div>
-                      <div className="min-w-0 flex-1 pt-0.5 ai-chat-md">
-                        <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                          {msg.content}
-                        </ReactMarkdown>
+                      <div className="min-w-0 flex-1 pt-0.5">
+                        <StreamingMessage
+                          content={msg.content}
+                          shouldStream={!!msg.isStreaming}
+                          onStreamDone={() => handleStreamDone(msg.id)}
+                        />
                       </div>
                     </div>
                   )}
                 </motion.div>
               ))}
 
-              {/* Typing indicator */}
+              {/* Typing indicator — waiting for API */}
               <AnimatePresence>
                 {isTyping && (
                   <motion.div
