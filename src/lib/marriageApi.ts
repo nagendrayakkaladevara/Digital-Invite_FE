@@ -1,9 +1,10 @@
 /**
  * Marriage API client
- * Base URL (development): http://localhost:5000
+ * Base URL: https://digital-invite-be.vercel.app
+ * Override with VITE_API_URL for local dev (e.g. http://localhost:5000)
  */
 
-const API_BASE = import.meta.env.VITE_API_URL ?? "http://localhost:5000";
+const API_BASE = import.meta.env.VITE_API_URL ?? "https://digital-invite-be.vercel.app";
 
 export type ChatModel =
   | "gemini"

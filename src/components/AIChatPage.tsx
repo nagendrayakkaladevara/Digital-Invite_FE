@@ -33,19 +33,12 @@ const MODEL_OPTIONS: { value: ChatModel; label: string }[] = [
   { value: "sarvam-m", label: "Sarvam" },
 ];
 
-const WELCOME_BACKGROUND = `🎉 Welcome to Nagendra's Wedding Assistant! 💖
-
-I'm here to make your wedding journey smooth, joyful, and stress-free 🌸
-
-✨ Here's how I can help you:
-
-📍 Venue & Directions — Easy navigation and the best ways to reach the wedding venue.
-
-🗓️ Events — Pellikoduku, March 7th lunch, Pelli muhurtham timings & every special moment.
-
-🚗✈️ Travel Help — Smart routes and transport options from Hyderabad, Bangalore, Chennai, Vizag & Vijayawada.
-
-💬 Just ask me anything — I'm here to help you celebrate with ease and excitement! ✨`;
+const WELCOME_ITEMS = [
+  { icon: "📍", title: "Venue & Directions", desc: "Easy navigation and the best ways to reach the wedding venue." },
+  { icon: "🗓️", title: "Events", desc: "Pellikoduku, March 7th lunch, Pelli muhurtham timings & every special moment." },
+  { icon: "🚗", title: "Travel Help", desc: "Smart routes from Hyderabad, Bangalore, Chennai, Vizag & Vijayawada." },
+  { icon: "💬", title: "Just ask anything", desc: "I'm here to help you celebrate with ease and excitement." },
+];
 
 const markdownStyles = `
   .ai-chat-markdown h1 { @apply text-base font-semibold mt-4 mb-2 first:mt-0 text-neutral-900; }
@@ -223,9 +216,31 @@ export default function AIChatPage({
           {/* Background welcome text when no messages */}
           {messages.length === 0 && (
             <div className="absolute inset-0 flex items-center justify-center px-4 sm:px-6 py-6 pointer-events-none">
-              <p className="max-w-xl text-center text-[15px] leading-[1.7] text-neutral-500/90 whitespace-pre-wrap">
-                {WELCOME_BACKGROUND}
-              </p>
+              <div className="max-w-md text-center space-y-6">
+                <div className="space-y-2">
+                  <h2 className="text-lg font-semibold text-neutral-700 tracking-tight">
+                    Welcome to Nagendra&apos;s Wedding Assistant
+                  </h2>
+                  <p className="text-[15px] text-neutral-500 leading-relaxed">
+                    I&apos;m here to make your wedding journey smooth, joyful, and stress-free.
+                  </p>
+                </div>
+                <ul className="space-y-2.5 text-left max-w-sm mx-auto">
+                  {WELCOME_ITEMS.map((item, i) => (
+                    <li key={i} className="flex gap-2.5 items-start">
+                      <span className="shrink-0 text-[15px] leading-none mt-0.5 opacity-80" aria-hidden>{item.icon}</span>
+                      <span className="text-[14px] text-neutral-600 leading-snug">
+                        <span className="font-medium text-neutral-700">{item.title}</span>
+                        {" "}
+                        <span className="text-neutral-500">{item.desc}</span>
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+                <p className="text-[13px] text-neutral-400 pt-1">
+                  Type a message below to get started
+                </p>
+              </div>
             </div>
           )}
           <div className="mx-auto w-full max-w-3xl px-4 sm:px-6 py-6 space-y-1">
