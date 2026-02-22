@@ -149,7 +149,7 @@ export default function WeddingTimelineSection() {
   return (
     <section
       id="timeline"
-      className="relative w-full overflow-hidden bg-[linear-gradient(180deg,oklch(0.97_0.01_264)_0%,oklch(0.99_0_0)_50%,oklch(0.98_0.02_30)_100%)]"
+      className="relative w-full overflow-hidden bg-[linear-gradient(180deg,oklch(0.97_0.01_264)_0%,oklch(0.99_0_0)_50%,oklch(0.99_0.01_30)_100%)]"
       aria-label="Wedding timeline"
     >
       <div className="absolute inset-0 opacity-[0.03]">
