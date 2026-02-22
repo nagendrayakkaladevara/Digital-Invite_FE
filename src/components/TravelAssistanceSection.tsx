@@ -6,6 +6,7 @@ import {
   Plane,
   Train,
   Bus,
+  Car,
   MapPin,
   Phone,
   ChevronDown,
@@ -13,6 +14,13 @@ import {
   RotateCcw,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import {
+  Map,
+  MapMarker,
+  MarkerContent,
+  MarkerTooltip,
+  MapRoute,
+} from "@/components/ui/map";
 
 const CITIES = [
   "Hyderabad",
@@ -32,6 +40,122 @@ const EVENTS = [
 
 const VENUE_MAPS_URL = "https://maps.google.com"; // Replace with actual venue link
 const TRAVEL_CONTACT = "+91 XXXXXXXXXX";
+
+// Venue coordinates per event (different events may be at different venues)
+const venueByEvent: Record<string, { lng: number; lat: number; name: string }> = {
+  pellikoduku: { lng: 78.4867, lat: 17.385, name: "Pellikoduku Venue" },
+  "march7-lunch": { lng: 78.4867, lat: 17.385, name: "March 7th Lunch Venue" },
+  pelli: { lng: 78.4867, lat: 17.385, name: "Wedding Venue (Pelli)" },
+  sathanamuthi: { lng: 78.49, lat: 17.39, name: "Sathanamuthi Ratham Venue" },
+  "yarnalu-lunch": { lng: 78.4867, lat: 17.385, name: "Yarnalu Lunch Venue" },
+};
+
+// Approach point per city + transport (where you arrive: airport, station, bus stand, or city center)
+const approachByCityTransport: Record<
+  string,
+  Record<"flight" | "train" | "bus" | "car", { lng: number; lat: number; name: string }>
+> = {
+  Hyderabad: {
+    flight: { lng: 78.43, lat: 17.24, name: "Rajiv Gandhi Airport" },
+    train: { lng: 78.473, lat: 17.435, name: "Secunderabad Junction" },
+    bus: { lng: 78.478, lat: 17.38, name: "MGBS Bus Stand" },
+    car: { lng: 78.48, lat: 17.385, name: "Hyderabad City" },
+  },
+  Bangalore: {
+    flight: { lng: 77.706, lat: 13.199, name: "Kempegowda Airport" },
+    train: { lng: 77.57, lat: 12.98, name: "Bangalore City Junction" },
+    bus: { lng: 77.58, lat: 12.98, name: "Kempegowda Bus Station" },
+    car: { lng: 77.59, lat: 12.97, name: "Bangalore City" },
+  },
+  Chennai: {
+    flight: { lng: 80.169, lat: 12.994, name: "Chennai Airport" },
+    train: { lng: 80.275, lat: 13.082, name: "Chennai Central" },
+    bus: { lng: 80.27, lat: 13.08, name: "CMBT Bus Stand" },
+    car: { lng: 80.27, lat: 13.08, name: "Chennai City" },
+  },
+  Vizag: {
+    flight: { lng: 83.224, lat: 17.721, name: "Vizag Airport" },
+    train: { lng: 83.279, lat: 17.689, name: "Vizag Railway Station" },
+    bus: { lng: 83.28, lat: 17.69, name: "Vizag Bus Stand" },
+    car: { lng: 83.28, lat: 17.69, name: "Vizag City" },
+  },
+  Vijayawada: {
+    flight: { lng: 80.79, lat: 16.53, name: "Vijayawada Airport" },
+    train: { lng: 80.656, lat: 16.506, name: "Vijayawada Junction" },
+    bus: { lng: 80.65, lat: 16.51, name: "Vijayawada Bus Stand" },
+    car: { lng: 80.65, lat: 16.51, name: "Vijayawada City" },
+  },
+};
+
+function getMapData(
+  eventId: string | null,
+  city: string | null,
+  transport: "flight" | "train" | "bus" | "car" | null
+): { route: [number, number][]; stops: { name: string; lng: number; lat: number }[]; center: [number, number] } | null {
+  if (!eventId || !city || !transport) return null;
+
+  const venue = venueByEvent[eventId];
+  const approach = approachByCityTransport[city]?.[transport];
+  if (!venue || !approach) return null;
+
+  const route: [number, number][] = [
+    [approach.lng, approach.lat],
+    [venue.lng, venue.lat],
+  ];
+  const stops = [
+    { name: approach.name, lng: approach.lng, lat: approach.lat },
+    { name: venue.name, lng: venue.lng, lat: venue.lat },
+  ];
+  const center: [number, number] = [
+    (approach.lng + venue.lng) / 2,
+    (approach.lat + venue.lat) / 2,
+  ];
+  return { route, stops, center };
+}
+
+function VenueMap({
+  eventId,
+  city,
+  transport,
+}: {
+  eventId: string | null;
+  city: string | null;
+  transport: "flight" | "train" | "bus" | "car";
+}) {
+  const mapData = getMapData(eventId, city, transport);
+  if (!mapData) return null;
+
+  const { route, stops, center } = mapData;
+
+  return (
+    <div className="rounded-xl overflow-hidden border border-neutral-200/80 mt-4">
+      <div className="h-[320px] md:h-[360px] w-full">
+        <Map center={center} zoom={10}>
+          <MapRoute
+            coordinates={route}
+            color="#3b82f6"
+            width={4}
+            opacity={0.8}
+          />
+          {stops.map((stop, index) => (
+            <MapMarker
+              key={stop.name}
+              longitude={stop.lng}
+              latitude={stop.lat}
+            >
+              <MarkerContent>
+                <div className="size-4.5 rounded-full bg-blue-500 border-2 border-white shadow-lg flex items-center justify-center text-white text-xs font-semibold">
+                  {index + 1}
+                </div>
+              </MarkerContent>
+              <MarkerTooltip>{stop.name}</MarkerTooltip>
+            </MapMarker>
+          ))}
+        </Map>
+      </div>
+    </div>
+  );
+}
 
 const transportDetails = {
   flight: {
@@ -70,6 +194,18 @@ const transportDetails = {
     time: "~ 40 to 60 minutes",
     note: "Local guidance will be available upon arrival.",
   },
+  car: {
+    icon: Car,
+    title: "By Car",
+    subtitle: "Convenient for those driving to the venue",
+    steps: [
+      "Use GPS or the map below to navigate to the wedding venue.",
+      "Park in the designated area near the venue.",
+      "Follow signage for guest parking upon arrival.",
+    ],
+    time: "Varies by your starting point",
+    note: "We recommend checking live traffic before you leave.",
+  },
 } as const;
 
 type TransportKey = keyof typeof transportDetails;
@@ -83,7 +219,7 @@ export default function TravelAssistanceSection() {
   const showTransport = selectedCity !== null && selectedEvent !== null;
   const hasSelection = selectedEvent !== null || selectedCity !== null;
   const selectedEventLabel =
-    EVENTS.find((e) => e.id === selectedEvent)?.label ?? selectedEvent;
+    EVENTS.find((e) => e.id === selectedEvent)?.label ?? "";
 
   const handleClear = () => {
     setSelectedEvent(null);
@@ -138,12 +274,14 @@ export default function TravelAssistanceSection() {
             className="mb-6 flex flex-col-reverse sm:flex-row sm:items-center sm:justify-between gap-3"
           >
             <p className="text-sm text-neutral-600 font-medium sm:order-1" aria-label="Your selection">
-              <span className="text-amber-700/90">{selectedEventLabel}</span>
+              {selectedEventLabel && (
+                <span className="text-amber-700/90">{selectedEventLabel}</span>
+              )}
+              {selectedEventLabel && selectedCity && (
+                <span className="mx-2 text-neutral-400" aria-hidden>•</span>
+              )}
               {selectedCity && (
-                <>
-                  <span className="mx-2 text-neutral-400" aria-hidden>•</span>
-                  <span className="text-neutral-700">{selectedCity}</span>
-                </>
+                <span className="text-neutral-700">{selectedCity}</span>
               )}
             </p>
             <button
@@ -181,7 +319,9 @@ export default function TravelAssistanceSection() {
                       className={cn(
                         "px-4 py-2.5 rounded-xl text-sm font-medium transition-all duration-200",
                         "border-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400/50 focus-visible:ring-offset-2",
-                        "bg-white/80 border-neutral-200/80 text-neutral-600 hover:border-amber-400/40 hover:text-neutral-800"
+                        selectedEvent === event.id
+                          ? "bg-amber-600/15 border-amber-600/60 text-amber-900 shadow-[0_2px_12px_rgba(180,83,9,0.12)]"
+                          : "bg-white/80 border-neutral-200/80 text-neutral-600 hover:border-amber-400/40 hover:text-neutral-800"
                       )}
                     >
                       {event.label}
@@ -239,7 +379,7 @@ export default function TravelAssistanceSection() {
                 transition={{ duration: 0.35, ease: [0.25, 0.46, 0.45, 0.94] }}
               >
               <h3 className="text-base md:text-lg font-semibold font-josefin text-neutral-800 mb-4">
-                ✈️🚆🚌 Available Transport Options
+                ✈️🚆🚌🚗 Available Transport Options
               </h3>
               <p className="text-neutral-500 text-sm mb-6">
                 Based on your selected city, tap on any option below to see
@@ -317,9 +457,12 @@ export default function TravelAssistanceSection() {
                                   <strong>Estimated travel time:</strong>{" "}
                                   {detail.time}
                                 </p>
-                                <p className="text-sm text-amber-800/90 italic">
+                                <p className="text-sm text-amber-800/90 italic mb-4">
                                   📍 {detail.note}
                                 </p>
+                                {getMapData(selectedEvent, selectedCity, key) && (
+                                  <VenueMap eventId={selectedEvent} city={selectedCity} transport={key} />
+                                )}
                               </div>
                             </motion.div>
                           )}
