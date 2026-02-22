@@ -650,28 +650,45 @@ export default function TravelAssistanceSection() {
 
         {/* Contact */}
         <motion.div
-          className="mt-8 p-5 md:p-6 rounded-2xl bg-amber-50/60 border border-amber-200/50"
-          initial={{ opacity: 0, y: 12 }}
+          className="mt-10 md:mt-12 relative overflow-hidden rounded-3xl bg-gradient-to-br from-amber-50 via-white to-orange-50 border border-amber-200/40 shadow-[0_4px_24px_rgba(180,83,9,0.06)]"
+          initial={{ opacity: 0, y: 16 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-50px" }}
-          transition={{ duration: 0.5, ease: [0.25, 0.46, 0.45, 0.94] }}
+          transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
         >
-          <h3 className="text-base md:text-lg font-semibold font-josefin text-neutral-800 mb-2 flex items-center gap-2">
-            <Phone className="h-5 w-5 text-amber-600" aria-hidden />
-            Need Help During Travel?
-          </h3>
-          <p className="text-neutral-600 text-sm mb-3">
-            If you feel unsure at any point during your journey, don't worry —
-            help is just a call away. We'll be happy to guide you or arrange
-            assistance.
-          </p>
-          <a
-            href={`tel:${TRAVEL_CONTACT.replace(/\s/g, "")}`}
-            className="inline-flex items-center gap-2 text-amber-800 font-semibold hover:text-amber-900 transition-colors"
-          >
-            <Phone className="h-4 w-4" aria-hidden />
-            {TRAVEL_CONTACT}
-          </a>
+          {/* Decorative accent */}
+          <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-amber-300 via-orange-300 to-amber-200" />
+
+          <div className="p-6 md:p-8 flex flex-col sm:flex-row sm:items-center gap-5 sm:gap-6">
+            {/* Icon */}
+            <div className="shrink-0">
+              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-amber-100 to-orange-100 shadow-sm ring-1 ring-amber-200/50">
+                <Phone className="h-5 w-5 text-amber-700" aria-hidden />
+              </div>
+            </div>
+
+            {/* Content */}
+            <div className="flex-1 min-w-0">
+              <h3 className="text-lg md:text-xl font-semibold font-josefin text-neutral-800 mb-1">
+                Need Help?
+              </h3>
+              <p className="text-neutral-500 text-sm leading-relaxed">
+                Don't worry — help is just a call away. We'll be happy to guide
+                you or arrange assistance.
+              </p>
+            </div>
+
+            {/* CTA */}
+            <div className="shrink-0">
+              <a
+                href={`tel:${TRAVEL_CONTACT.replace(/\s/g, "")}`}
+                className="inline-flex items-center gap-2.5 px-5 py-3 rounded-xl bg-amber-600 text-white font-medium text-sm shadow-md shadow-amber-600/20 hover:bg-amber-700 hover:shadow-lg hover:shadow-amber-600/25 active:scale-[0.98] transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400 focus-visible:ring-offset-2"
+              >
+                <Phone className="h-4 w-4" aria-hidden />
+                {TRAVEL_CONTACT}
+              </a>
+            </div>
+          </div>
         </motion.div>
       </div>
     </section>
