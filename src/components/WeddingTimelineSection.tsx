@@ -45,7 +45,7 @@ const weddingEvents = [
     calendarEnd: istToUTC("2026-03-05", 11, 0),
   },
   {
-    title: "గోరింటాకు పెట్టాం",
+    title: "గోరింటాకు పెట్టటం",
     date: "March 6th · Morning",
     location: "Mamidikuduru",
     mapUrl: MAMIDIKUDURU_MAP,
@@ -61,7 +61,7 @@ const weddingEvents = [
     calendarEnd: istToUTC("2026-03-06", 21, 0),
   },
   {
-    title: "కళ్ల గొల్లు తీయటం",
+    title: "కాళ్ళ గోర్లు తీయటం",
     date: "March 7th · Morning",
     location: "Mamidikuduru",
     mapUrl: MAMIDIKUDURU_MAP,
@@ -86,7 +86,7 @@ const weddingEvents = [
   },
   {
     title: "పెళ్లి",
-    date: "March 8th · 2:30 AM (early hours)",
+    date: "March 7th · 2:35 AM (early hours of March 8th) Saturday night.",
     location: "Eluru J S K Gardens",
     mapUrl: JSK_GARDENS_MAP,
     calendarStart: istToUTC("2026-03-08", 2, 30),
@@ -99,15 +99,7 @@ const weddingEvents = [
     mapUrl: MAMIDIKUDURU_MAP,
     calendarStart: istToUTC("2026-03-08", 8, 0),
     calendarEnd: istToUTC("2026-03-08", 11, 0),
-  },
-  {
-    title: "యజ్ఞాల అనంతరం భోజనం",
-    date: "March 9th · Morning",
-    location: "Mamidikuduru",
-    mapUrl: MAMIDIKUDURU_MAP,
-    calendarStart: istToUTC("2026-03-09", 9, 0),
-    calendarEnd: istToUTC("2026-03-09", 12, 0),
-  },
+  }
 ];
 
 const weddingEventsWithContent = weddingEvents.map((evt) => {

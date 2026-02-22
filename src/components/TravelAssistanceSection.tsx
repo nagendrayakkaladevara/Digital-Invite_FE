@@ -24,31 +24,40 @@ import {
 
 const CITIES = [
   "Hyderabad",
-  "Bangalore",
-  "Chennai",
   "Vizag",
   "Vijayawada",
+  "Rajamendry",
+  "Bhimavaram",
 ] as const;
 
 const EVENTS = [
-  { id: "pellikoduku", label: "Pellikoduku Cheytam" },
+  { id: "pellikoduku", label: "Pellikoduku Cheytam March 5th Morning" },
   { id: "march7-lunch", label: "March 7th Lunch" },
   { id: "pelli", label: "Pelli March 8th 02:35 AM" },
-  { id: "sathanamuthi", label: "Sathanamuthi Ratham" },
-  { id: "yarnalu-lunch", label: "Yarnalu Lunch" },
+  { id: "sathanamuthi", label: "Sathanamuthi Ratham March 8th Morning" },
+  { id: "yarnalu-lunch", label: "Yarnalu Lunch March 9th" },
 ] as const;
 
 const VENUE_MAPS_URL = "https://maps.google.com"; // Replace with actual venue link
-const TRAVEL_CONTACT = "+91 XXXXXXXXXX";
+const TRAVEL_CONTACT = "+91 8099712349";
 
 // Venue coordinates per event (different events may be at different venues)
+// Pelli March 8th only is in Eluru (Akkireddigudem); all other events are in Mamidikuduru
 const venueByEvent: Record<string, { lng: number; lat: number; name: string }> = {
-  pellikoduku: { lng: 78.4867, lat: 17.385, name: "Pellikoduku Venue" },
-  "march7-lunch": { lng: 78.4867, lat: 17.385, name: "March 7th Lunch Venue" },
-  pelli: { lng: 78.4867, lat: 17.385, name: "Wedding Venue (Pelli)" },
-  sathanamuthi: { lng: 78.49, lat: 17.39, name: "Sathanamuthi Ratham Venue" },
-  "yarnalu-lunch": { lng: 78.4867, lat: 17.385, name: "Yarnalu Lunch Venue" },
+  pellikoduku: { lng: 82.05, lat: 16.52, name: "Pellikoduku Venue (Mamidikuduru)" },
+  "march7-lunch": { lng: 82.05, lat: 16.52, name: "March 7th Lunch Venue (Mamidikuduru)" },
+  pelli: { lng: 81.08, lat: 16.78, name: "Wedding Venue (Akkireddigudem, Eluru)" },
+  sathanamuthi: { lng: 82.05, lat: 16.52, name: "Sathanamuthi Ratham Venue (Mamidikuduru)" },
+  "yarnalu-lunch": { lng: 82.05, lat: 16.52, name: "Yarnalu Lunch Venue (Mamidikuduru)" },
 };
+
+// Hyderabad → Mamidikuduru route: 4 key locations for the map (all events except Pelli)
+const HYDERABAD_MAMIDIKUDURU_MAP_STOPS = [
+  { name: "Rajiv Gandhi International Airport", lng: 78.4304, lat: 17.2403 },
+  { name: "Rajahmundry Airport", lng: 81.8182, lat: 17.1104 },
+  { name: "Amalapuram Bus Stand", lng: 82.051, lat: 16.537 },
+  { name: "Mamidikuduru", lng: 82.05, lat: 16.52 },
+] as const;
 
 // Approach point per city + transport (where you arrive: airport, station, bus stand, or city center)
 const approachByCityTransport: Record<
@@ -60,18 +69,6 @@ const approachByCityTransport: Record<
     train: { lng: 78.473, lat: 17.435, name: "Secunderabad Junction" },
     bus: { lng: 78.478, lat: 17.38, name: "MGBS Bus Stand" },
     car: { lng: 78.48, lat: 17.385, name: "Hyderabad City" },
-  },
-  Bangalore: {
-    flight: { lng: 77.706, lat: 13.199, name: "Kempegowda Airport" },
-    train: { lng: 77.57, lat: 12.98, name: "Bangalore City Junction" },
-    bus: { lng: 77.58, lat: 12.98, name: "Kempegowda Bus Station" },
-    car: { lng: 77.59, lat: 12.97, name: "Bangalore City" },
-  },
-  Chennai: {
-    flight: { lng: 80.169, lat: 12.994, name: "Chennai Airport" },
-    train: { lng: 80.275, lat: 13.082, name: "Chennai Central" },
-    bus: { lng: 80.27, lat: 13.08, name: "CMBT Bus Stand" },
-    car: { lng: 80.27, lat: 13.08, name: "Chennai City" },
   },
   Vizag: {
     flight: { lng: 83.224, lat: 17.721, name: "Vizag Airport" },
@@ -85,6 +82,18 @@ const approachByCityTransport: Record<
     bus: { lng: 80.65, lat: 16.51, name: "Vijayawada Bus Stand" },
     car: { lng: 80.65, lat: 16.51, name: "Vijayawada City" },
   },
+  Rajamendry: {
+    flight: { lng: 81.818, lat: 17.11, name: "Rajahmundry Airport" },
+    train: { lng: 81.778, lat: 17.005, name: "Rajahmundry Junction" },
+    bus: { lng: 81.78, lat: 17.0, name: "Rajahmundry Bus Stand" },
+    car: { lng: 81.78, lat: 17.0, name: "Rajahmundry City" },
+  },
+  Bhimavaram: {
+    flight: { lng: 81.818, lat: 17.11, name: "Rajahmundry Airport (nearest)" },
+    train: { lng: 81.533, lat: 16.543, name: "Bhimavaram Junction" },
+    bus: { lng: 81.535, lat: 16.543, name: "Bhimavaram Bus Stand" },
+    car: { lng: 81.535, lat: 16.543, name: "Bhimavaram City" },
+  },
 };
 
 function getMapData(
@@ -95,7 +104,14 @@ function getMapData(
   if (!eventId || !city || !transport) return null;
 
   const venue = venueByEvent[eventId];
-  const approach = approachByCityTransport[city]?.[transport];
+  // Hyderabad + flight: use nearest airport to venue
+  // Pelli (Eluru) → Vijayawada; others (Mamidikuduru) → Rajahmundry
+  const approach =
+    city === "Hyderabad" && transport === "flight"
+      ? eventId === "pelli"
+        ? { lng: 80.79, lat: 16.53, name: "Vijayawada Airport" }
+        : { lng: 81.8182, lat: 17.1104, name: "Rajahmundry Airport" }
+      : approachByCityTransport[city]?.[transport];
   if (!venue || !approach) return null;
 
   const route: [number, number][] = [
@@ -122,6 +138,49 @@ function VenueMap({
   city: string | null;
   transport: "flight" | "train" | "bus" | "car";
 }) {
+  // Hyderabad + Mamidikuduru events (all except Pelli): show 4-marker map
+  const isHyderabadMamidikuduru =
+    eventId !== "pelli" &&
+    city === "Hyderabad" &&
+    (transport === "flight" || transport === "bus");
+
+  if (isHyderabadMamidikuduru) {
+    const center: [number, number] = [80.24, 16.92];
+    const route: [number, number][] = HYDERABAD_MAMIDIKUDURU_MAP_STOPS.map((s) => [
+      s.lng,
+      s.lat,
+    ]);
+
+    return (
+      <div className="rounded-xl overflow-hidden border border-neutral-200/80 mt-4">
+        <div className="h-[320px] md:h-[360px] w-full">
+          <Map center={center} zoom={8}>
+            <MapRoute
+              coordinates={route}
+              color="#3b82f6"
+              width={4}
+              opacity={0.8}
+            />
+            {HYDERABAD_MAMIDIKUDURU_MAP_STOPS.map((stop, index) => (
+              <MapMarker
+                key={stop.name}
+                longitude={stop.lng}
+                latitude={stop.lat}
+              >
+                <MarkerContent>
+                  <div className="size-4.5 rounded-full bg-blue-500 border-2 border-white shadow-lg flex items-center justify-center text-white text-xs font-semibold">
+                    {index + 1}
+                  </div>
+                </MarkerContent>
+                <MarkerTooltip>{stop.name}</MarkerTooltip>
+              </MapMarker>
+            ))}
+          </Map>
+        </div>
+      </div>
+    );
+  }
+
   const mapData = getMapData(eventId, city, transport);
   if (!mapData) return null;
 
@@ -157,6 +216,92 @@ function VenueMap({
   );
 }
 
+// Custom instructions for Hyderabad → Eluru (Pelli March 8th only — Akkireddigudem)
+const hyderabadEluruOverrides: Record<
+  "flight" | "train" | "bus" | "car",
+  { steps: string[]; time: string; note: string }
+> = {
+  flight: {
+    steps: [
+      "Book a flight from Rajiv Gandhi International Airport (Hyderabad) to Vijayawada (Gannavaram) Airport — nearest to Eluru.",
+      "From Vijayawada Airport: take a cab to the venue in Akkireddigudem (~50 km, Eluru–Jangareddygudem Rd, beside BPCL Petrol Bunk).",
+      "Proceed using the map below.",
+    ],
+    time: "~ 1 to 1.5 hours from Vijayawada (depending on traffic)",
+    note: "",
+  },
+  train: {
+    steps: [
+      "Book a train from Secunderabad Junction (or Hyderabad Deccan) to Eluru Railway Station.",
+      "Exit the station and take a cab or auto to Akkireddigudem (Eluru–Jangareddygudem Rd, beside BPCL Petrol Bunk).",
+      "Follow the route shared in the map below.",
+    ],
+    time: "~ 45 minutes to 1 hour from Eluru station",
+    note: "Pickup assistance from Eluru railway station is available if needed.",
+  },
+  bus: {
+    steps: [
+      "Take a bus from MGBS (Mahatma Gandhi Bus Station) Hyderabad to Eluru bus stand.",
+      "From Eluru bus stand, hire a cab or auto to Akkireddigudem (beside BPCL Petrol Bunk).",
+      "Proceed to the venue using the provided map.",
+    ],
+    time: "~ 40 to 60 minutes from Eluru bus stand",
+    note: "Local guidance will be available upon arrival.",
+  },
+  car: {
+    steps: [
+      "Drive from Hyderabad to Eluru via NH65, then to Akkireddigudem (Eluru–Jangareddygudem Rd, beside BPCL Petrol Bunk, 534450).",
+      "Use GPS or the map below to navigate to the venue.",
+      "Park in the designated area near the venue.",
+    ],
+    time: "~ 6 to 7 hours drive from Hyderabad",
+    note: "We recommend checking live traffic before you leave.",
+  },
+};
+
+// Custom instructions for Hyderabad → Mamidikuduru (all events except Pelli)
+const hyderabadMamidikuduruOverrides: Record<
+  "flight" | "train" | "bus" | "car",
+  { steps: string[]; time: string; note: string }
+> = {
+  flight: {
+    steps: [
+      "Book a flight from Rajiv Gandhi International Airport (Hyderabad) to Rajahmundry Airport.",
+      "From Rajahmundry Airport: take a cab directly to Mamidikuduru.",
+      "Alternative: Take a bus from Rajahmundry to Amalapuram or Razole, then hire an auto to Mamidikuduru (or take a connecting bus).",
+    ],
+    time: "~ 1.5 to 2 hours from Rajahmundry (depending on traffic)",
+    note: "",
+  },
+  train: {
+    steps: [
+      "Book a train from Secunderabad to Rajahmundry or Kakinada Junction.",
+      "From Rajahmundry: take a cab or bus to Mamidikuduru (or via Amalapuram/Razole).",
+      "Follow the route shared in the map below.",
+    ],
+    time: "~ 2 to 2.5 hours from Rajahmundry",
+    note: "Pickup assistance can be arranged on request.",
+  },
+  bus: {
+    steps: [
+      "Fly to Rajahmundry Airport from Hyderabad (or reach Rajahmundry by bus/train).",
+      "From Rajahmundry Airport: take a bus to Amalapuram or Razole.",
+      "From Amalapuram/Razole: hire an auto to Mamidikuduru, or take a connecting bus.",
+    ],
+    time: "~ 2 to 2.5 hours from Rajahmundry",
+    note: "Local guidance will be available upon arrival at Amalapuram or Razole.",
+  },
+  car: {
+    steps: [
+      "Drive from Hyderabad to Mamidikuduru via Rajahmundry/Amalapuram route.",
+      "Use GPS or the map below to navigate to the venue in Mamidikuduru.",
+      "Park in the designated area near the venue.",
+    ],
+    time: "~ 7 to 8 hours drive from Hyderabad",
+    note: "We recommend checking live traffic before you leave.",
+  },
+};
+
 const transportDetails = {
   flight: {
     icon: Plane,
@@ -168,7 +313,7 @@ const transportDetails = {
       "Travel directly to the wedding venue location.",
     ],
     time: "~ 1 to 1.5 hours (depending on traffic)",
-    note: "Pickup assistance from the airport can be arranged on request.",
+    note: "",
   },
   train: {
     icon: Train,
@@ -180,7 +325,7 @@ const transportDetails = {
       "Follow the route shared in the map below.",
     ],
     time: "~ 45 minutes to 1 hour",
-    note: "Pickup assistance from the railway station is available if needed.",
+    note: "",
   },
   bus: {
     icon: Bus,
@@ -449,23 +594,41 @@ export default function TravelAssistanceSection() {
                               className="overflow-hidden"
                             >
                               <div className="px-4 pb-5 md:px-5 md:pb-6 pt-0 border-t border-neutral-100">
-                                <p className="text-neutral-600 text-sm mb-4 mt-3">
-                                  {detail.subtitle}
-                                </p>
-                                <ol className="list-decimal list-inside space-y-2 text-sm text-neutral-700 mb-4">
-                                  {detail.steps.map((step, j) => (
-                                    <li key={j} className="pl-1">
-                                      {step}
-                                    </li>
-                                  ))}
-                                </ol>
-                                <p className="text-sm text-neutral-600 mb-2">
-                                  <strong>Estimated travel time:</strong>{" "}
-                                  {detail.time}
-                                </p>
-                                <p className="text-sm text-amber-800/90 italic mb-4">
-                                  📍 {detail.note}
-                                </p>
+                                {(() => {
+                                  const isHyderabad = selectedCity === "Hyderabad";
+                                  const isPelli = selectedEvent === "pelli";
+                                  const override = isHyderabad && isPelli
+                                    ? hyderabadEluruOverrides[key]
+                                    : isHyderabad && !isPelli
+                                      ? hyderabadMamidikuduruOverrides[key]
+                                      : undefined;
+                                  const steps = override?.steps ?? detail.steps;
+                                  const time = override?.time ?? detail.time;
+                                  const note = override?.note ?? detail.note;
+                                  return (
+                                    <>
+                                      <p className="text-neutral-600 text-sm mb-4 mt-3">
+                                        {detail.subtitle}
+                                      </p>
+                                      <ol className="list-decimal list-inside space-y-2 text-sm text-neutral-700 mb-4">
+                                        {steps.map((step: string, j: number) => (
+                                          <li key={j} className="pl-1">
+                                            {step}
+                                          </li>
+                                        ))}
+                                      </ol>
+                                      <p className="text-sm text-neutral-600 mb-2">
+                                        <strong>Estimated travel time:</strong>{" "}
+                                        {time}
+                                      </p>
+                                      {note && (
+                                        <p className="text-sm text-amber-800/90 italic mb-4">
+                                          📍 {note}
+                                        </p>
+                                      )}
+                                    </>
+                                  );
+                                })()}
                                 {getMapData(selectedEvent, selectedCity, key) && (
                                   <VenueMap eventId={selectedEvent} city={selectedCity} transport={key} />
                                 )}

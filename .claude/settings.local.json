@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npx skills add https://github.com/vercel-labs/skills --skill find-skills)",
+      "Bash(npx skills:*)",
+      "Bash(npx tsc:*)"
+    ]
+  }
+}
