@@ -165,7 +165,7 @@ export default function WeddingTimelineSection() {
         <Timeline
           data={weddingEventsWithContent}
           title="Events Timeline"
-          subtitle="పెళ్లికొడుకు చేయటం to యజ్ఞాల అనంతరం భోజనం — every moment that led us here."
+          subtitle="పెళ్లికొడుకు చేయటం to శ్రీ సత్యనారాయణ స్వామి వ్రతం — every moment that makes this celebration special."
           gradientColors={["#f59e0b", "#fb7185", "transparent"]}
         />
       </div>

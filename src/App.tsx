@@ -35,38 +35,6 @@ function LandingPage() {
 
   return (
     <div className="min-h-screen w-full bg-white relative overflow-x-hidden">
-      {/* Diagonal Cross Grid Top Background */}
-      {/* <div
-        className="absolute inset-0"
-        style={{
-          backgroundImage: `
-            linear-gradient(45deg, transparent 49%, #e5e7eb 49%, #e5e7eb 51%, transparent 51%),
-            linear-gradient(-45deg, transparent 49%, #e5e7eb 49%, #e5e7eb 51%, transparent 51%)
-          `,
-          backgroundSize: "40px 40px",
-          WebkitMaskImage:
-            "radial-gradient(ellipse 70% 60% at 50% 0%, #000 60%, transparent 100%)",
-          maskImage:
-            "radial-gradient(ellipse 70% 60% at 50% 0%, #000 60%, transparent 100%)",
-        }}
-      /> */}
-      {/* Your Content/Components */}
-      {/* <header className="absolute top-0 left-0 right-0 z-20 pt-8 px-6 flex justify-center">
-        <motion.a
-          href="#"
-          className="inline-block focus:outline-none focus-visible:ring-2 focus-visible:ring-[#67864B]/40 focus-visible:ring-offset-2 rounded-lg transition-transform duration-300 hover:scale-105"
-          aria-label="Wedding logo"
-          initial={{ opacity: 0, y: -12 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, ease: [0.25, 0.46, 0.45, 0.94], delay: 0.2 }}
-        >
-          <img
-            src={logo}
-            alt="Wedding logo"
-            className="h-16 md:h-20 w-auto object-contain drop-shadow-sm"
-          />
-        </motion.a>
-      </header> */}
       <section id="hero" className="relative min-h-dvh h-dvh w-full">
       <HeroHighlight containerClassName="min-h-dvh">
         <motion.img
@@ -91,12 +59,12 @@ function LandingPage() {
             duration: 0.5,
             ease: [0.4, 0.0, 0.2, 1],
           }}
-          className="text-2xl px-4 md:text-4xl lg:text-4xl font-bold text-neutral-700 dark:text-white max-w-4xl leading-relaxed lg:leading-snug text-center mx-auto "
+          className="text-2xl px-4 md:text-4xl lg:text-4xl font-bold text-neutral-700 dark:text-white max-w-4xl leading-relaxed lg:leading-snug text-center mx-auto"
         >
-          With Joy, We Invite You to the Wedding of {" "} <br />
+          With Joy, We Invite You to the Wedding of<br />
           <Highlight className="text-black dark:text-white">
-            Sai Nagendra & Sushma
-          </Highlight>.
+            Sai Nagendra &amp; Sushma
+          </Highlight>
         </motion.h1>
       </HeroHighlight>
       </section>
@@ -104,27 +72,30 @@ function LandingPage() {
       <WeddingTimelineSection />
       <TravelAssistanceSection />
       {/* AI button fixed at bottom of viewport */}
-      <div className="fixed bottom-0 left-0 right-0 z-30 flex justify-center pb-6 px-4">
-        <Link
-          to="/chat"
-          role="button"
-          className="group relative inline-flex items-center justify-center rounded-full border-2 border-neutral-300 bg-white/90 px-6 py-3 text-sm font-medium text-neutral-600 shadow-lg backdrop-blur-sm transition-all duration-300 hover:border-neutral-400 hover:bg-white hover:shadow-xl hover:shadow-neutral-200/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-400/40 focus-visible:ring-offset-2 active:scale-[0.98] dark:border-neutral-600 dark:bg-neutral-900/90 dark:text-neutral-300 dark:hover:border-neutral-500 dark:hover:bg-neutral-900 dark:hover:shadow-neutral-950/50 dark:focus-visible:ring-neutral-500/40"
-          aria-label="Nagendra's AI"
-        >
-          <ShinyText
-            text="✨ Click Here to Chat with Nagendra's AI"
-            speed={2}
-            delay={0}
-            color="#000000"
-            shineColor="#fafafa"
-            spread={120}
-            direction="left"
-            yoyo={false}
-            pauseOnHover={false}
-            disabled={false}
-            className="font-medium"
-          />
-        </Link>
+      <div className="fixed bottom-0 left-0 right-0 z-30 pointer-events-none">
+        <div className="h-24 bg-gradient-to-t from-white via-white/80 to-transparent" />
+        <div className="bg-white pb-5 flex justify-center px-4 pointer-events-auto">
+          <Link
+            to="/chat"
+            role="button"
+            className="group relative inline-flex items-center justify-center rounded-full border-2 border-neutral-300 bg-white px-6 py-3 text-sm font-medium text-neutral-600 shadow-lg transition-all duration-300 hover:border-neutral-400 hover:shadow-xl hover:shadow-neutral-200/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-400/40 focus-visible:ring-offset-2 active:scale-[0.98]"
+            aria-label="Ask Nagendra's AI"
+          >
+            <ShinyText
+              text="✨ Ask Nagendra's AI"
+              speed={2}
+              delay={0}
+              color="#000000"
+              shineColor="#fafafa"
+              spread={120}
+              direction="left"
+              yoyo={false}
+              pauseOnHover={false}
+              disabled={false}
+              className="font-medium"
+            />
+          </Link>
+        </div>
       </div>
     </div>
   );

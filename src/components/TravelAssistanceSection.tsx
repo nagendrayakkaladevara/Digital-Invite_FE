@@ -7,10 +7,8 @@ import {
   Train,
   Bus,
   Car,
-  MapPin,
   Phone,
   ChevronDown,
-  ChevronRight,
   RotateCcw,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -20,6 +18,7 @@ import {
   MarkerContent,
   MarkerTooltip,
   MapRoute,
+  MapFitBounds,
 } from "@/components/ui/map";
 
 const CITIES = [
@@ -38,7 +37,6 @@ const EVENTS = [
   { id: "yarnalu-lunch", label: "Yarnalu Lunch March 9th" },
 ] as const;
 
-const VENUE_MAPS_URL = "https://maps.google.com"; // Replace with actual venue link
 const TRAVEL_CONTACT = "+91 8099712349";
 
 // Venue coordinates per event (different events may be at different venues)
@@ -145,16 +143,20 @@ function VenueMap({
     (transport === "flight" || transport === "bus");
 
   if (isHyderabadMamidikuduru) {
-    const center: [number, number] = [80.24, 16.92];
     const route: [number, number][] = HYDERABAD_MAMIDIKUDURU_MAP_STOPS.map((s) => [
       s.lng,
       s.lat,
     ]);
+    const initialCenter: [number, number] = [
+      (Math.min(...route.map((r) => r[0])) + Math.max(...route.map((r) => r[0]))) / 2,
+      (Math.min(...route.map((r) => r[1])) + Math.max(...route.map((r) => r[1]))) / 2,
+    ];
 
     return (
       <div className="rounded-xl overflow-hidden border border-neutral-200/80 mt-4">
         <div className="h-[320px] md:h-[360px] w-full">
-          <Map center={center} zoom={8}>
+          <Map center={initialCenter} zoom={8}>
+            <MapFitBounds coordinates={route} padding={56} maxZoom={12} />
             <MapRoute
               coordinates={route}
               color="#3b82f6"
@@ -190,6 +192,7 @@ function VenueMap({
     <div className="rounded-xl overflow-hidden border border-neutral-200/80 mt-4">
       <div className="h-[320px] md:h-[360px] w-full">
         <Map center={center} zoom={10}>
+          <MapFitBounds coordinates={route} padding={56} maxZoom={14} />
           <MapRoute
             coordinates={route}
             color="#3b82f6"
@@ -284,12 +287,11 @@ const hyderabadMamidikuduruOverrides: Record<
   },
   bus: {
     steps: [
-      "Fly to Rajahmundry Airport from Hyderabad (or reach Rajahmundry by bus/train).",
-      "From Rajahmundry Airport: take a bus to Amalapuram or Razole.",
-      "From Amalapuram/Razole: hire an auto to Mamidikuduru, or take a connecting bus.",
+      "Take a bus (RTC or private travels) from Hyderabad to Amalapuram via Mamidikuduru, and request a stop at Mamidikuduru.",
+      "If you choose the Razole bus, you can get an auto or RTC bus which travels via Mamidikuduru.",
     ],
-    time: "~ 2 to 2.5 hours from Rajahmundry",
-    note: "Local guidance will be available upon arrival at Amalapuram or Razole.",
+    time: "~ 8 to 10 hours from Hyderabad",
+    note: "Local guidance will be available upon arrival at Mamidikuduru.",
   },
   car: {
     steps: [
@@ -392,7 +394,7 @@ export default function TravelAssistanceSection() {
         }}
       />
 
-      <div className="relative max-w-4xl mx-auto py-16 md:py-24 px-4 md:px-8">
+      <div className="relative max-w-4xl mx-auto pt-16 md:pt-24 pb-32 md:pb-36 px-4 md:px-8">
         {/* Header */}
         <motion.header
           className="text-center mb-12 md:mb-16"
@@ -645,36 +647,6 @@ export default function TravelAssistanceSection() {
             )}
           </AnimatePresence>
         </div>
-
-        {/* Venue Location - hidden for now */}
-        {false && (
-          <motion.div
-            className="mt-14 md:mt-16 p-5 md:p-6 rounded-2xl bg-white/70 border border-neutral-200/80 shadow-[0_4px_20px_rgba(0,0,0,0.04)]"
-            initial={{ opacity: 0, y: 12 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-50px" }}
-            transition={{ duration: 0.5, ease: [0.25, 0.46, 0.45, 0.94] }}
-          >
-            <h3 className="text-base md:text-lg font-semibold font-josefin text-neutral-800 mb-2 flex items-center gap-2">
-              <MapPin className="h-5 w-5 text-amber-600" aria-hidden />
-              Venue Location
-            </h3>
-            <p className="text-neutral-600 text-sm mb-4">
-              You can easily navigate to the venue using Google Maps. We recommend
-              checking live traffic conditions before starting your final leg of
-              travel.
-            </p>
-            <a
-              href={VENUE_MAPS_URL}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-amber-600 text-white font-medium text-sm hover:bg-amber-700 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400 focus-visible:ring-offset-2"
-            >
-              <ChevronRight className="h-4 w-4" aria-hidden />
-              Open Venue in Google Maps
-            </a>
-          </motion.div>
-        )}
 
         {/* Contact */}
         <motion.div

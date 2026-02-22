@@ -1468,6 +1468,42 @@ function MapClusterLayer<
   return null;
 }
 
+type MapFitBoundsProps = {
+  /** Array of [longitude, latitude] coordinates to fit in view */
+  coordinates: [number, number][];
+  /** Padding in pixels around the bounds (default: 48) */
+  padding?: number;
+  /** Maximum zoom level when fitting (default: 14) */
+  maxZoom?: number;
+};
+
+function MapFitBounds({
+  coordinates,
+  padding = 48,
+  maxZoom = 14,
+}: MapFitBoundsProps) {
+  const { map, isLoaded } = useMap();
+
+  useEffect(() => {
+    if (!isLoaded || !map || coordinates.length < 2) return;
+
+    const lngs = coordinates.map((c) => c[0]);
+    const lats = coordinates.map((c) => c[1]);
+    const bounds: [[number, number], [number, number]] = [
+      [Math.min(...lngs), Math.min(...lats)],
+      [Math.max(...lngs), Math.max(...lats)],
+    ];
+
+    map.fitBounds(bounds, {
+      padding,
+      maxZoom,
+      duration: 0,
+    });
+  }, [isLoaded, map, coordinates, padding, maxZoom]);
+
+  return null;
+}
+
 export {
   Map,
   useMap,
@@ -1479,6 +1515,7 @@ export {
   MapPopup,
   MapControls,
   MapRoute,
+  MapFitBounds,
   MapClusterLayer,
 };
 
