@@ -11,12 +11,13 @@ export interface UseViewportVideoOptions {
   rootMargin?: string;
   /** Debounce pause to avoid rapid play/pause on scroll boundary. Default: 150ms */
   debounceMs?: number;
+  /** Called when the browser forces mute due to autoplay policy */
+  onAutoplayMuted?: () => void;
 }
 
 /**
  * Hook to control video play/pause based on viewport visibility.
- * Uses IntersectionObserver for performant scroll-based visibility detection.
- * Optimized to avoid unnecessary re-renders and observer churn.
+ * Tries unmuted playback first; falls back to muted if browser blocks it.
  */
 export function useViewportVideo<T extends HTMLVideoElement>(
   options: UseViewportVideoOptions = {}
@@ -25,12 +26,15 @@ export function useViewportVideo<T extends HTMLVideoElement>(
     threshold = DEFAULT_THRESHOLD,
     rootMargin = DEFAULT_ROOT_MARGIN,
     debounceMs = 150,
+    onAutoplayMuted,
   } = options;
 
   const videoRef = useRef<T>(null);
   const observerRef = useRef<IntersectionObserver | null>(null);
   const debounceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const lastVisibleRef = useRef<boolean | null>(null);
+  const onAutoplayMutedRef = useRef(onAutoplayMuted);
+  onAutoplayMutedRef.current = onAutoplayMuted;
 
   const updatePlayState = useCallback(
     (isVisible: boolean) => {
@@ -41,8 +45,12 @@ export function useViewportVideo<T extends HTMLVideoElement>(
       if (!video) return;
 
       if (isVisible) {
+        // Try playing as-is (unmuted if that's the current state)
         video.play().catch(() => {
-          /* Autoplay may be blocked; fail silently */
+          // Browser blocked unmuted autoplay — mute and retry
+          video.muted = true;
+          onAutoplayMutedRef.current?.();
+          video.play().catch(() => {});
         });
       } else {
         video.pause();
