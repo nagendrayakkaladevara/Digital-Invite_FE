@@ -30,7 +30,7 @@ const CITIES = [
   "Hyderabad",
   "Vizag",
   "Vijayawada",
-  "Rajamendry",
+  "Rajamahendravaram",
   "Bhimavaram",
 ] as const;
 
@@ -60,7 +60,7 @@ const venueByEvent: Record<string, { lng: number; lat: number; name: string }> =
 
 const HYDERABAD_MAMIDIKUDURU_MAP_STOPS = [
   { name: "Rajiv Gandhi International Airport", lng: 78.4304, lat: 17.2403 },
-  { name: "Rajahmundry Airport", lng: 81.8182, lat: 17.1104 },
+  { name: "Rajamahendravaram Airport", lng: 81.8182, lat: 17.1104 },
   { name: "Amalapuram Bus Stand", lng: 82.051, lat: 16.537 },
   { name: "Mamidikuduru", lng: 82.05, lat: 16.52 },
 ] as const;
@@ -87,14 +87,14 @@ const approachByCityTransport: Record<
     bus: { lng: 80.65, lat: 16.51, name: "Vijayawada Bus Stand" },
     car: { lng: 80.65, lat: 16.51, name: "Vijayawada City" },
   },
-  Rajamendry: {
-    flight: { lng: 81.818, lat: 17.11, name: "Rajahmundry Airport" },
+  Rajamahendravaram: {
+    flight: { lng: 81.818, lat: 17.11, name: "Rajamahendravaram Airport" },
     train: { lng: 81.778, lat: 17.005, name: "Rajahmundry Junction" },
     bus: { lng: 81.78, lat: 17.0, name: "Rajahmundry Bus Stand" },
     car: { lng: 81.78, lat: 17.0, name: "Rajahmundry City" },
   },
   Bhimavaram: {
-    flight: { lng: 81.818, lat: 17.11, name: "Rajahmundry Airport (nearest)" },
+    flight: { lng: 81.818, lat: 17.11, name: "Rajamahendravaram Airport (nearest)" },
     train: { lng: 81.533, lat: 16.543, name: "Bhimavaram Junction" },
     bus: { lng: 81.535, lat: 16.543, name: "Bhimavaram Bus Stand" },
     car: { lng: 81.535, lat: 16.543, name: "Bhimavaram City" },
@@ -113,7 +113,7 @@ function getMapData(
     city === "Hyderabad" && transport === "flight"
       ? eventId === "pelli"
         ? { lng: 80.79, lat: 16.53, name: "Vijayawada Airport" }
-        : { lng: 81.8182, lat: 17.1104, name: "Rajahmundry Airport" }
+        : { lng: 81.8182, lat: 17.1104, name: "Rajamahendravaram Airport" }
       : approachByCityTransport[city]?.[transport];
   if (!venue || !approach) return null;
 
@@ -271,8 +271,8 @@ const hyderabadMamidikuduruOverrides: Record<
 > = {
   flight: {
     steps: [
-      "Book a flight from Rajiv Gandhi International Airport (Hyderabad) to Rajahmundry Airport.",
-      "From Rajahmundry Airport: take a cab directly to Mamidikuduru.",
+      "Book a flight from Rajiv Gandhi International Airport (Hyderabad) to Rajamahendravaram Airport.",
+      "From Rajamahendravaram Airport: take a cab directly to Mamidikuduru.",
       "Alternative: Take a bus from Rajahmundry to Amalapuram or Razole, then hire an auto to Mamidikuduru (or take a connecting bus).",
     ],
     time: "~ 1.5 to 2 hours from Rajahmundry (depending on traffic)",
