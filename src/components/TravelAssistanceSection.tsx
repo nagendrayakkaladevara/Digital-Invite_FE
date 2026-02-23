@@ -37,8 +37,8 @@ const CITIES = [
 const EVENTS = [
   { id: "pellikoduku", label: "Pellikoduku Cheytam", date: "Mar 5 · Morning", emoji: "🎊" },
   { id: "march7-lunch", label: "Lunch at Home", date: "Mar 7 · 11:30 AM", emoji: "🍽️" },
-  { id: "pelli", label: "Pelli (Wedding)", date: "Mar 8 · 02:35 AM", emoji: "💍" },
-  { id: "sathanamuthi", label: "Satyanaraya Vratam", date: "Mar 8 · Morning", emoji: "🪔" },
+  { id: "pelli", label: "Pelli (Wedding)", date: "March 7th 02:35 AM (early hours of March 8th)", emoji: "💍" },
+  { id: "sathanamuthi", label: "Satyanaraya Vratam", date: "Mar 8 · Morning", emoji: "🙏" },
   { id: "yarnalu-lunch", label: "Yarnalu Lunch", date: "Mar 9 · Afternoon", emoji: "🎉" },
 ] as const;
 

@@ -38,7 +38,7 @@ const JSK_GARDENS_MAP = "https://share.google/rAaFsheiBXXCqXhlY";
 
 const titleTranslations: Record<string, string> = {
   "పెళ్లికొడుకు చేయటం": "Groom's Preparation Ceremony",
-  "గోరింటాకు పెట్టటం": "Henna (Mehndi) Ceremony",
+  "గోరింటాకు పెట్టటం": "Mehndi Event",
   "గాజులు వేయటం": "Glass Bangles Ceremony",
   "కాళ్ళ గోర్లు తీయటం": "Toe Rings Ceremony",
   "కంకణం కట్టటం": "Sacred Thread Tying",
@@ -98,7 +98,7 @@ const weddingEvents = [
   },
   {
     title: "పెళ్లి",
-    date: "March 7th · 2:35 AM (early hours of March 8th) Saturday night.",
+    date: "March 7th 02:35 AM (early hours of March 8th) Saturday night.",
     location: "Eluru J S K Gardens",
     mapUrl: JSK_GARDENS_MAP,
     calendarStart: istToUTC("2026-03-08", 2, 30),
@@ -121,15 +121,16 @@ export default function WeddingTimelineSection() {
     language === "en" ? (titleTranslations[teluguTitle] ?? teluguTitle) : teluguTitle;
 
   const eventsWithContent = weddingEvents.map((evt) => {
+    const displayTitle = getTitle(evt.title);
     const calendarUrl = buildCalendarUrl(
-      evt.title,
+      displayTitle,
       evt.calendarStart,
       evt.calendarEnd,
       evt.location
     );
 
     return {
-      title: getTitle(evt.title),
+      title: displayTitle,
       content: (
         <div>
           <p className="mb-2 text-sm font-medium text-neutral-500 dark:text-neutral-400">
