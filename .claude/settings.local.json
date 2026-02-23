@@ -3,7 +3,10 @@
     "allow": [
       "Bash(npx skills add https://github.com/vercel-labs/skills --skill find-skills)",
       "Bash(npx skills:*)",
-      "Bash(npx tsc:*)"
+      "Bash(npx tsc:*)",
+      "Bash(find:*)",
+      "Bash(done)",
+      "Bash(npm run build:*)"
     ]
   }
 }

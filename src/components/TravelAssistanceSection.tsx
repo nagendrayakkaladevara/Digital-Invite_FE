@@ -243,7 +243,7 @@ const hyderabadEluruOverrides: Record<
       "Follow the route shared in the map below.",
     ],
     time: "~ 45 minutes to 1 hour from Eluru station",
-    note: "Pickup assistance from Eluru railway station is available if needed.",
+    note: "",
   },
   bus: {
     steps: [

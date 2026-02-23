@@ -7,6 +7,7 @@ import WeddingVideoSection from './components/WeddingVideoSection';
 import WeddingTimelineSection from './components/WeddingTimelineSection';
 import TravelAssistanceSection from './components/TravelAssistanceSection';
 import AIChatPage from './components/AIChatPage';
+import LanguageToggle from './components/LanguageToggle';
 import logo from './assets/video/logo.svg';
 
 const SECTION_IDS = ["hero", "video", "timeline", "travel"] as const;
@@ -35,6 +36,7 @@ function LandingPage() {
 
   return (
     <div className="min-h-screen w-full bg-white relative overflow-x-hidden">
+      <LanguageToggle />
       <section id="hero" className="relative min-h-dvh h-dvh w-full">
       <HeroHighlight containerClassName="min-h-dvh">
         <motion.img

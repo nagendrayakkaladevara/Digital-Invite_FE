@@ -1,5 +1,6 @@
 import { MapPin, CalendarPlus } from "lucide-react";
 import { Timeline } from "@/components/ui/timeline";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 /** Build Google Calendar "Add Event" URL. dates format: YYYYMMDDTHHMMSSZ/YYYYMMDDTHHMMSSZ */
 function buildCalendarUrl(
@@ -34,6 +35,17 @@ function istToUTC(dateStr: string, hour: number, minute: number): string {
 
 const MAMIDIKUDURU_MAP = "https://www.google.com/maps/search/Mamidikuduru+Andhra+Pradesh";
 const JSK_GARDENS_MAP = "https://share.google/rAaFsheiBXXCqXhlY";
+
+const titleTranslations: Record<string, string> = {
+  "పెళ్లికొడుకు చేయటం": "Groom's Preparation Ceremony",
+  "గోరింటాకు పెట్టటం": "Henna (Mehndi) Ceremony",
+  "గాజులు వేయటం": "Glass Bangles Ceremony",
+  "కాళ్ళ గోర్లు తీయటం": "Toe Rings Ceremony",
+  "కంకణం కట్టటం": "Sacred Thread Tying",
+  "పెళ్లికొడుకు ఇంటి దగ్గర విందు": "Feast at Groom's Home",
+  "పెళ్లి": "Wedding Ceremony",
+  "శ్రీ సత్యనారాయణ స్వామి వ్రతం": "Sri Satyanarayana Swami Vratam",
+};
 
 const weddingEvents = [
   {
@@ -102,50 +114,59 @@ const weddingEvents = [
   }
 ];
 
-const weddingEventsWithContent = weddingEvents.map((evt) => {
-  const calendarUrl = buildCalendarUrl(
-    evt.title,
-    evt.calendarStart,
-    evt.calendarEnd,
-    evt.location
-  );
-
-  return {
-    title: evt.title,
-    content: (
-      <div>
-        <p className="mb-2 text-sm font-medium text-neutral-500 dark:text-neutral-400">
-          {evt.date}
-        </p>
-        <p className="mb-4 text-sm font-medium text-amber-700 dark:text-amber-600">
-          📍 {evt.location}
-        </p>
-        <div className="flex flex-wrap gap-3">
-          <a
-            href={evt.mapUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 rounded-lg border border-amber-200 bg-amber-50/80 px-4 py-2.5 text-sm font-medium text-amber-900 transition hover:bg-amber-100 hover:border-amber-300 focus:outline-none focus:ring-2 focus:ring-amber-400/50"
-          >
-            <MapPin className="h-4 w-4" aria-hidden />
-            <span>View on Map</span>
-          </a>
-          <a
-            href={calendarUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 rounded-lg border border-rose-200 bg-rose-50/80 px-4 py-2.5 text-sm font-medium text-rose-900 transition hover:bg-rose-100 hover:border-rose-300 focus:outline-none focus:ring-2 focus:ring-rose-400/50"
-          >
-            <CalendarPlus className="h-4 w-4" aria-hidden />
-            <span>Add to Calendar</span>
-          </a>
-        </div>
-      </div>
-    ),
-  };
-});
-
 export default function WeddingTimelineSection() {
+  const { language } = useLanguage();
+
+  const getTitle = (teluguTitle: string) =>
+    language === "en" ? (titleTranslations[teluguTitle] ?? teluguTitle) : teluguTitle;
+
+  const eventsWithContent = weddingEvents.map((evt) => {
+    const calendarUrl = buildCalendarUrl(
+      evt.title,
+      evt.calendarStart,
+      evt.calendarEnd,
+      evt.location
+    );
+
+    return {
+      title: getTitle(evt.title),
+      content: (
+        <div>
+          <p className="mb-2 text-sm font-medium text-neutral-500 dark:text-neutral-400">
+            {evt.date}
+          </p>
+          <p className="mb-4 text-sm font-medium text-amber-700 dark:text-amber-600">
+            📍 {evt.location}
+          </p>
+          <div className="flex flex-wrap gap-3">
+            <a
+              href={evt.mapUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 rounded-lg border border-amber-200 bg-amber-50/80 px-4 py-2.5 text-sm font-medium text-amber-900 transition hover:bg-amber-100 hover:border-amber-300 focus:outline-none focus:ring-2 focus:ring-amber-400/50"
+            >
+              <MapPin className="h-4 w-4" aria-hidden />
+              <span>View on Map</span>
+            </a>
+            <a
+              href={calendarUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 rounded-lg border border-rose-200 bg-rose-50/80 px-4 py-2.5 text-sm font-medium text-rose-900 transition hover:bg-rose-100 hover:border-rose-300 focus:outline-none focus:ring-2 focus:ring-rose-400/50"
+            >
+              <CalendarPlus className="h-4 w-4" aria-hidden />
+              <span>Add to Calendar</span>
+            </a>
+          </div>
+        </div>
+      ),
+    };
+  });
+
+  const subtitle = language === "en"
+    ? "Groom's Preparation Ceremony to Sri Satyanarayana Swami Vratam — every moment that makes this celebration special."
+    : "పెళ్లికొడుకు చేయటం to శ్రీ సత్యనారాయణ స్వామి వ్రతం — every moment that makes this celebration special.";
+
   return (
     <section
       id="timeline"
@@ -163,9 +184,9 @@ export default function WeddingTimelineSection() {
       </div>
       <div className="relative w-full">
         <Timeline
-          data={weddingEventsWithContent}
+          data={eventsWithContent}
           title="Events Timeline"
-          subtitle="పెళ్లికొడుకు చేయటం to శ్రీ సత్యనారాయణ స్వామి వ్రతం — every moment that makes this celebration special."
+          subtitle={subtitle}
           gradientColors={["#f59e0b", "#fb7185", "transparent"]}
         />
       </div>

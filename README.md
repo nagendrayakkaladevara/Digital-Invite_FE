@@ -1,4 +1,19 @@
-# React + TypeScript + Vite
+# Digital Wedding Invitation – Sai Nagendra Weds Sushma
+
+React + TypeScript + Vite digital invitation (March 7th, 2026).
+
+## WhatsApp / Social Preview
+
+For link previews in WhatsApp, Facebook, and Twitter:
+
+1. **Create the preview image** (1200×630 px, JPG/PNG, &lt;600KB):
+   - Option A: Open `public/og-generator.html` in a browser, resize to 1200×630, screenshot/save as `public/og-image.jpg`
+   - Option B: Add your own wedding photo as `public/og-image.jpg`
+
+2. **Set your site URL** when deploying (e.g. Vercel):
+   ```
+   VITE_SITE_URL=https://your-wedding-domain.vercel.app
+   ```
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
