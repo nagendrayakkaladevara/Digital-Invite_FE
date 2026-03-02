@@ -8,10 +8,10 @@ import WeddingTimelineSection from './components/WeddingTimelineSection';
 import TravelAssistanceSection from './components/TravelAssistanceSection';
 import FeedbackSection from './components/FeedbackSection';
 import SubhalekhaSection from './components/SubhalekhaSection';
-import PhotosSection from './components/PhotosSection';
 import AIChatPage from './components/AIChatPage';
 import LanguageToggle from './components/LanguageToggle';
 import logo from './assets/video/logo.svg';
+import PhotosSection from "./components/PhotosSection";
 
 const SECTION_IDS = ["hero", "video", "invitation", "timeline", "photos", "travel", "feedback"] as const;
 
@@ -90,6 +90,8 @@ function LandingPage() {
       </section>
       <WeddingVideoSection />
       <SubhalekhaSection />
+    
+      <PhotosSection />
       <WeddingTimelineSection />
       <TravelAssistanceSection />
       {showFeedback && <FeedbackSection />}
