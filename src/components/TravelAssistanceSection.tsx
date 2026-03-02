@@ -447,7 +447,7 @@ export default function TravelAssistanceSection() {
   };
 
   const handleShare = async () => {
-    const url = `${window.location.origin}${window.location.pathname}${window.location.search}#travel`;
+    const url = `${window.location.origin}${window.location.pathname}${window.location.search}#need-assistance`;
     const shareData = {
       title: "Sai Nagendra Weds Sushma — Travel Assistance",
       text: "Get directions and travel help for the wedding.",
@@ -833,6 +833,7 @@ export default function TravelAssistanceSection() {
 
         {/* Contact */}
         <motion.div
+          id="need-assistance"
           className="mt-14 md:mt-16 relative overflow-hidden rounded-3xl"
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}

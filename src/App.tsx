@@ -13,7 +13,7 @@ import LanguageToggle from './components/LanguageToggle';
 import logo from './assets/video/logo.svg';
 import PhotosSection from "./components/PhotosSection";
 
-const SECTION_IDS = ["hero", "video", "invitation", "timeline", "photos", "travel", "feedback"] as const;
+const SECTION_IDS = ["hero", "video", "invitation", "timeline", "photos", "travel", "need-assistance", "feedback"] as const;
 
 // Feedback section shows after Mar 8th 2026, 8:00 AM IST
 const FEEDBACK_AVAILABLE_FROM = new Date("2026-03-08T02:30:00Z"); // 8am IST = 02:30 UTC
