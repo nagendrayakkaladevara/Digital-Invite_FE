@@ -11,10 +11,10 @@ import {
   ChevronDown,
   RotateCcw,
   MapPin,
-  Navigation,
   Clock,
   Info,
   CheckCircle2,
+  Share2,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
@@ -280,7 +280,7 @@ const hyderabadMamidikuduruOverrides: Record<
   },
   train: {
     steps: [
-      "Book a train from Secunderabad to Rajahmundry or Kakinada Junction.",
+      "Book a train from Secunderabad to Rajahmundry or Kakinada Junction or Palakollu.",
       "From Rajahmundry: take a cab or bus to Mamidikuduru (or via Amalapuram/Razole).",
       "Follow the route shared in the map below.",
     ],
@@ -446,12 +446,32 @@ export default function TravelAssistanceSection() {
     setExpandedTransport(null);
   };
 
+  const handleShare = async () => {
+    const url = `${window.location.origin}${window.location.pathname}${window.location.search}#travel`;
+    const shareData = {
+      title: "Sai Nagendra Weds Sushma — Travel Assistance",
+      text: "Get directions and travel help for the wedding.",
+      url,
+    };
+    if (navigator.share) {
+      try {
+        await navigator.share(shareData);
+      } catch {
+        navigator.clipboard.writeText(url);
+      }
+    } else {
+      navigator.clipboard.writeText(url);
+    }
+  };
+
   return (
     <section
       id="travel"
       className="relative w-full overflow-hidden bg-[linear-gradient(180deg,oklch(0.99_0.01_30)_0%,oklch(0.985_0.012_35)_40%,oklch(0.975_0.018_28)_100%)]"
       aria-label="Travel assistance"
     >
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-16 bg-gradient-to-b from-white to-transparent z-10" aria-hidden />
+      <div className="pointer-events-none absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-white to-transparent z-10" aria-hidden />
       {/* Decorative radial glow */}
       <div
         className="pointer-events-none absolute inset-0"
@@ -478,15 +498,32 @@ export default function TravelAssistanceSection() {
           viewport={{ once: true, margin: "-50px" }}
           transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
         >
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-amber-100/70 border border-amber-200/60 mb-5">
-            <Navigation className="h-3.5 w-3.5 text-amber-600" aria-hidden />
-            <span className="text-xs font-semibold text-amber-700 tracking-wide uppercase">
-              Getting There
-            </span>
+          <div className="flex items-center justify-center gap-3 mb-3">
+            <div className="h-px w-14 sm:w-24 bg-gradient-to-r from-transparent to-[#C4862A]/45" />
+            <svg width="8" height="8" viewBox="0 0 8 8" fill="none" aria-hidden>
+              <path d="M4 0L8 4L4 8L0 4Z" fill="#C4862A" opacity="0.75" />
+            </svg>
+            <div className="h-px w-14 sm:w-24 bg-gradient-to-l from-transparent to-[#C4862A]/45" />
           </div>
-          <h2 className="text-3xl md:text-[2.5rem] font-bold font-josefin text-neutral-800 leading-tight mb-4">
+          <h2
+            className="text-3xl sm:text-4xl leading-tight my-1 mb-4"
+            style={{
+              fontFamily: "'Cormorant Garamond', Georgia, serif",
+              fontStyle: "italic",
+              fontWeight: 500,
+              color: "#7B2D00",
+              letterSpacing: "0.02em",
+            }}
+          >
             Travel Assistance
           </h2>
+          <div className="flex items-center justify-center gap-3 mb-5">
+            <div className="h-px w-14 sm:w-24 bg-gradient-to-r from-transparent to-[#C4862A]/45" />
+            <svg width="8" height="8" viewBox="0 0 8 8" fill="none" aria-hidden>
+              <path d="M4 0L8 4L4 8L0 4Z" fill="#C4862A" opacity="0.75" />
+            </svg>
+            <div className="h-px w-14 sm:w-24 bg-gradient-to-l from-transparent to-[#C4862A]/45" />
+          </div>
           <p className="text-neutral-500 text-[15px] md:text-base max-w-md mx-auto leading-relaxed">
             Select your event and city — we'll map out the best route to get you there.
           </p>
@@ -808,13 +845,23 @@ export default function TravelAssistanceSection() {
           <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-amber-300/60 to-transparent" />
 
           <div className="relative p-6 md:p-8">
-            <div className="flex items-center gap-3 mb-1.5">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-amber-100 to-orange-100 shadow-sm ring-1 ring-amber-200/50">
-                <Phone className="h-[18px] w-[18px] text-amber-700" aria-hidden />
+            <div className="flex items-center justify-between gap-3 mb-1.5">
+              <div className="flex items-center gap-3">
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-amber-100 to-orange-100 shadow-sm ring-1 ring-amber-200/50">
+                  <Phone className="h-[18px] w-[18px] text-amber-700" aria-hidden />
+                </div>
+                <h3 className="text-lg md:text-xl font-semibold font-josefin text-neutral-800">
+                  Need Assistance?
+                </h3>
               </div>
-              <h3 className="text-lg md:text-xl font-semibold font-josefin text-neutral-800">
-                Need Assistance?
-              </h3>
+              <button
+                type="button"
+                onClick={handleShare}
+                className="p-2 rounded-full text-amber-600/70 hover:text-amber-600 hover:bg-amber-100/60 transition-colors shrink-0"
+                aria-label="Share travel assistance link"
+              >
+                <Share2 className="h-5 w-5" aria-hidden />
+              </button>
             </div>
             <p className="text-neutral-400 text-sm leading-relaxed mb-6 ml-[52px]">
               Help is just a call away.

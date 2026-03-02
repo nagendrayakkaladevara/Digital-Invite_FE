@@ -45,11 +45,34 @@ export const Timeline = ({
       className="w-full font-sans md:px-10"
       ref={containerRef}
     >
-      <div className="max-w-7xl mx-auto py-20 px-4 md:px-8 lg:px-10">
-        <h2 className="text-lg md:text-4xl mb-4 text-black dark:text-white max-w-4xl font-josefin">
+      <div className="max-w-7xl mx-auto py-20 px-4 md:px-8 lg:px-10 flex flex-col items-center text-center">
+        <div className="flex items-center gap-3 mb-3">
+          <div className="h-px w-14 sm:w-24 bg-gradient-to-r from-transparent to-[#C4862A]/45" />
+          <svg width="8" height="8" viewBox="0 0 8 8" fill="none" aria-hidden>
+            <path d="M4 0L8 4L4 8L0 4Z" fill="#C4862A" opacity="0.75" />
+          </svg>
+          <div className="h-px w-14 sm:w-24 bg-gradient-to-l from-transparent to-[#C4862A]/45" />
+        </div>
+        <h2
+          className="text-3xl sm:text-4xl leading-tight my-1"
+          style={{
+            fontFamily: "'Cormorant Garamond', Georgia, serif",
+            fontStyle: "italic",
+            fontWeight: 500,
+            color: "#7B2D00",
+            letterSpacing: "0.02em",
+          }}
+        >
           {title}
         </h2>
-        <p className="text-neutral-700 dark:text-neutral-300 text-sm md:text-base max-w-sm">
+        <div className="flex items-center gap-3 mt-3 mb-4">
+          <div className="h-px w-14 sm:w-24 bg-gradient-to-r from-transparent to-[#C4862A]/45" />
+          <svg width="8" height="8" viewBox="0 0 8 8" fill="none" aria-hidden>
+            <path d="M4 0L8 4L4 8L0 4Z" fill="#C4862A" opacity="0.75" />
+          </svg>
+          <div className="h-px w-14 sm:w-24 bg-gradient-to-l from-transparent to-[#C4862A]/45" />
+        </div>
+        <p className="text-neutral-500 text-sm md:text-base max-w-sm">
           {subtitle}
         </p>
       </div>

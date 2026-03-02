@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Routes, Route, useLocation, Link } from "react-router-dom";
 import { HeroHighlight, Highlight } from "./components/ui/hero-highlight"
 import { motion } from "motion/react";
@@ -6,11 +6,28 @@ import ShinyText from './components/ShinyText';
 import WeddingVideoSection from './components/WeddingVideoSection';
 import WeddingTimelineSection from './components/WeddingTimelineSection';
 import TravelAssistanceSection from './components/TravelAssistanceSection';
+import FeedbackSection from './components/FeedbackSection';
+import SubhalekhaSection from './components/SubhalekhaSection';
+import PhotosSection from './components/PhotosSection';
 import AIChatPage from './components/AIChatPage';
 import LanguageToggle from './components/LanguageToggle';
 import logo from './assets/video/logo.svg';
 
-const SECTION_IDS = ["hero", "video", "timeline", "travel"] as const;
+const SECTION_IDS = ["hero", "video", "invitation", "timeline", "photos", "travel", "feedback"] as const;
+
+// Feedback section shows after Mar 8th 2026, 8:00 AM IST
+const FEEDBACK_AVAILABLE_FROM = new Date("2026-03-08T02:30:00Z"); // 8am IST = 02:30 UTC
+
+function useFeedbackVisible() {
+  const [visible, setVisible] = useState(() => Date.now() >= FEEDBACK_AVAILABLE_FROM.getTime());
+  useEffect(() => {
+    const remaining = FEEDBACK_AVAILABLE_FROM.getTime() - Date.now();
+    if (remaining <= 0) return;
+    const t = setTimeout(() => setVisible(true), remaining);
+    return () => clearTimeout(t);
+  }, []);
+  return visible;
+}
 
 function useScrollToSection() {
   const { hash, search } = useLocation();
@@ -33,6 +50,7 @@ function useScrollToSection() {
 
 function LandingPage() {
   useScrollToSection();
+  const showFeedback = useFeedbackVisible();
 
   return (
     <div className="min-h-screen w-full bg-white relative overflow-x-hidden">
@@ -71,8 +89,10 @@ function LandingPage() {
       </HeroHighlight>
       </section>
       <WeddingVideoSection />
+      <SubhalekhaSection />
       <WeddingTimelineSection />
       <TravelAssistanceSection />
+      {showFeedback && <FeedbackSection />}
       {/* AI button fixed at bottom of viewport */}
       <div className="fixed bottom-0 left-0 right-0 z-30 pointer-events-none">
         <div className="h-24 bg-gradient-to-t from-white via-white/80 to-transparent" />

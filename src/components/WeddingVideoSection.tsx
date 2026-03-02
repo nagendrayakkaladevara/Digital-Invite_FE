@@ -44,6 +44,8 @@ export default function WeddingVideoSection() {
       )}
       aria-label="Wedding video"
     >
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-16 bg-gradient-to-b from-white to-transparent z-10" aria-hidden />
+      <div className="pointer-events-none absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-white to-transparent z-10" aria-hidden />
       <div
         className={cn(
           "relative w-full max-w-[min(92vw,420px)]",

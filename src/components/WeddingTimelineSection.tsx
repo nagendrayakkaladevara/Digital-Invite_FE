@@ -174,6 +174,8 @@ export default function WeddingTimelineSection() {
       className="relative w-full overflow-hidden bg-[linear-gradient(180deg,oklch(0.97_0.01_264)_0%,oklch(0.99_0_0)_50%,oklch(0.99_0.01_30)_100%)]"
       aria-label="Wedding timeline"
     >
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-16 bg-gradient-to-b from-white to-transparent z-10" aria-hidden />
+      <div className="pointer-events-none absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-white to-transparent z-10" aria-hidden />
       <div className="absolute inset-0 opacity-[0.03]">
         <div
           className="absolute inset-0"
