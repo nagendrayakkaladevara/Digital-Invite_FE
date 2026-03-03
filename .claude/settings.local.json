@@ -8,7 +8,8 @@
       "Bash(done)",
       "Bash(npm run build:*)",
       "Bash(cd D:/ReactProject/marriage && node -e \"\nconst fs = require\\('fs'\\);\nconst path = require\\('path'\\);\nconst dir = 'src/assets/photos';\nconst files = fs.readdirSync\\(dir\\);\nfiles.forEach\\(f => {\n  const buf = fs.readFileSync\\(path.join\\(dir, f\\)\\);\n  // Read JPEG dimensions from EXIF/SOF markers\n  let w = 0, h = 0;\n  for \\(let i = 0; i < buf.length - 8; i++\\) {\n    if \\(buf[i] === 0xFF && \\(buf[i+1] === 0xC0 || buf[i+1] === 0xC2\\)\\) {\n      h = \\(buf[i+5] << 8\\) | buf[i+6];\n      w = \\(buf[i+7] << 8\\) | buf[i+8];\n      break;\n    }\n  }\n  console.log\\(JSON.stringify\\({ file: f, w, h, ratio: \\(h/w\\).toFixed\\(3\\) }\\)\\);\n}\\);\n\" 2>&1)",
-      "Bash(node:*)"
+      "Bash(node:*)",
+      "WebFetch(domain:assets.sarvam.ai)"
     ]
   }
 }

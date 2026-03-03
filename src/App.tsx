@@ -12,8 +12,10 @@ import AIChatPage from './components/AIChatPage';
 import LanguageToggle from './components/LanguageToggle';
 import logo from './assets/video/logo.svg';
 import PhotosSection from "./components/PhotosSection";
+import PhotoUploadSection from "./components/PhotoUploadSection";
+import FooterSection from "./components/FooterSection";
 
-const SECTION_IDS = ["hero", "video", "invitation", "timeline", "photos", "travel", "need-assistance", "feedback"] as const;
+const SECTION_IDS = ["hero", "video", "invitation", "timeline", "photos", "share-photos", "travel", "need-assistance", "feedback"] as const;
 
 // Feedback section shows after Mar 8th 2026, 8:00 AM IST
 const FEEDBACK_AVAILABLE_FROM = new Date("2026-03-08T02:30:00Z"); // 8am IST = 02:30 UTC
@@ -92,9 +94,11 @@ function LandingPage() {
       <SubhalekhaSection />
     
       <PhotosSection />
+      <PhotoUploadSection />
       <WeddingTimelineSection />
       <TravelAssistanceSection />
       {showFeedback && <FeedbackSection />}
+      <FooterSection />
       {/* AI button fixed at bottom of viewport */}
       <div className="fixed bottom-0 left-0 right-0 z-30 pointer-events-none">
         <div className="h-24 bg-gradient-to-t from-white via-white/80 to-transparent" />
