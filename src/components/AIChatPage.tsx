@@ -35,7 +35,7 @@ interface Message {
   isStreaming?: boolean;
 }
 
-const DEFAULT_MODEL: ChatModel = "sarvam-m";
+const DEFAULT_MODEL: ChatModel = "gemini-3-flash-preview";
 
 const MODEL_OPTIONS: { value: ChatModel; label: string; desc: string }[] = [
   { value: "gemini-3-flash-preview", label: "Gemini", desc: "Fast & capable" },
